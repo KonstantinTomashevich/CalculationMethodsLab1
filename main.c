@@ -4,9 +4,7 @@
 #include "matrixutils.h"
 #include "mtwister.h"
 #include "gaussjordan.h"
-
-#define abs(a) (((a) > 0.0 ? (a) : (-a)))
-#define max(a, b) (((a) > (b) ? (a) : (b)))
+#include "gauss.h"
 
 extern MTRand *GlobalRand;
 void CalculateConditionNumber (double **A)
@@ -20,15 +18,15 @@ void CalculateConditionNumber (double **A)
     }
     else
     {
-        double aMax = abs (A[0][0]);
-        double antiAMax = abs (antiA[0][0]);
+        double aMax = m_abs (A[0][0]);
+        double antiAMax = m_abs (antiA[0][0]);
 
         for (int row = 0; row < MATRIX_SIZE; ++row)
         {
             for (int col = 0; col < MATRIX_SIZE; ++col)
             {
-                aMax = max (aMax, abs (A[row][col]));
-                antiAMax = max (antiAMax, abs (antiA[row][col]));
+                aMax = m_max (aMax, m_abs (A[row][col]));
+                antiAMax = m_max (antiAMax, m_abs (antiA[row][col]));
             }
         }
 
@@ -37,6 +35,38 @@ void CalculateConditionNumber (double **A)
 
     FreeMatrix (copyA, MATRIX_SIZE, MATRIX_SIZE);
     FreeMatrix (antiA, MATRIX_SIZE, MATRIX_SIZE);
+}
+
+void FindGaussSolutionAndPrintDiff (double **A, double **B, double **X)
+{
+    double **copyA = CopyMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
+    double **copyB = CopyMatrix (B, MATRIX_SIZE, 1);
+    int *Xi = calloc (MATRIX_SIZE, sizeof (int));
+
+    if (!Gauss (copyA, copyB, Xi, MATRIX_SIZE, MATRIX_SIZE, 1))
+    {
+        printf ("Unable to solve system!\n");
+    }
+    else
+    {
+        double maxDifference = 0.0;
+        double averageDifference = 0.0;
+
+        for (int index = 0; index < MATRIX_SIZE; ++index)
+        {
+            double currentDiff = m_abs (X[Xi[index]][0] - copyB[index][0]);
+            maxDifference = m_max (maxDifference, currentDiff);
+            averageDifference += currentDiff / MATRIX_SIZE;
+            printf ("X%d diff (X/Gauss): %20.13lf %20.13lf\n", Xi[index], X[Xi[index]][0], copyB[index][0]);
+        }
+
+        printf ("Gauss max difference: %20.13lf.\n", maxDifference);
+        printf ("Gauss average difference: %20.13lf.\n", averageDifference);
+    }
+
+    FreeMatrix (copyA, MATRIX_SIZE, MATRIX_SIZE);
+    FreeMatrix (copyB, MATRIX_SIZE, 1);
+    free (Xi);
 }
 
 void MainCycle ()
@@ -51,6 +81,8 @@ void MainCycle ()
     MultiplyMatrices (A, X, B, MATRIX_SIZE, MATRIX_SIZE, 1);
 
     CalculateConditionNumber (A);
+    FindGaussSolutionAndPrintDiff (A, B, X);
+
     FreeMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
     FreeMatrix (X, MATRIX_SIZE, 1);
     FreeMatrix (B, MATRIX_SIZE, 1);
@@ -59,7 +91,7 @@ void MainCycle ()
 int main ()
 {
     GlobalRand = malloc (sizeof (MTRand));
-    *GlobalRand = SeedRand (1337);
+    *GlobalRand = SeedRand (1377);
 
     MainCycle ();
     free (GlobalRand);
