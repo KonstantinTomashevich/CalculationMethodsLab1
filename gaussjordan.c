@@ -3,7 +3,7 @@
 
 static bool FixA (double **A, double **antiA, int rows, int cols, int step)
 {
-    if (A [step] [step] == 0)
+    if (A[step][step] == 0)
     {
         if (step == rows - 1)
         {
@@ -13,7 +13,7 @@ static bool FixA (double **A, double **antiA, int rows, int cols, int step)
         int toChange = -1;
         for (int row = step + 1; row < rows; ++row)
         {
-            if (A [row] [step] != 0)
+            if (A[row][step] != 0)
             {
                 toChange = row;
                 break;
@@ -43,7 +43,7 @@ bool GaussJordanAlgo (double **A, double **antiA, int rows, int cols)
     {
         for (int col = 0; col < cols; ++col)
         {
-            antiA [row] [col] = row == col ? 1 : 0;
+            antiA[row][col] = row == col ? 1 : 0;
         }
     }
 
@@ -58,7 +58,7 @@ bool GaussJordanAlgo (double **A, double **antiA, int rows, int cols)
         {
             for (int row = step + 1; row < rows; ++row)
             {
-                double modifier = -A [row] [step] / A [step] [step];
+                double modifier = -A[row][step] / A[step][step];
                 AddMultipliedRow (A, rows, cols, row, step, modifier);
                 AddMultipliedRow (antiA, rows, cols, row, step, modifier);
             }
@@ -67,7 +67,7 @@ bool GaussJordanAlgo (double **A, double **antiA, int rows, int cols)
 
     for (int step = 0; step < rows; ++step)
     {
-        double modifier = 1.0 / A [step] [step];
+        double modifier = 1.0 / A[step][step];
         MultiplyRow (A, rows, cols, step, modifier);
         MultiplyRow (antiA, rows, cols, step, modifier);
     }
@@ -76,7 +76,7 @@ bool GaussJordanAlgo (double **A, double **antiA, int rows, int cols)
     {
         for (int row = step - 1; row >= 0; --row)
         {
-            double modifier = -A [row] [step] / A [step] [step];
+            double modifier = -A[row][step] / A[step][step];
             AddMultipliedRow (A, rows, cols, row, step, modifier);
             AddMultipliedRow (antiA, rows, cols, row, step, modifier);
         }

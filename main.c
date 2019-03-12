@@ -27,8 +27,8 @@ void CalculateConditionNumber (double **A)
         {
             for (int col = 0; col < MATRIX_SIZE; ++col)
             {
-                aMax = max (aMax, abs (A [row] [col]));
-                antiAMax = max (antiAMax, abs (antiA [row] [col]));
+                aMax = max (aMax, abs (A[row][col]));
+                antiAMax = max (antiAMax, abs (antiA[row][col]));
             }
         }
 
