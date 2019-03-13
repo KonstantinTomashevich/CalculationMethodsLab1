@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "matrixutils.h"
 #include "mtwister.h"
@@ -9,15 +10,31 @@
 
 #define RUN_COUNT 100
 extern MTRand *GlobalRand;
+double minConditionNumber = INFINITY;
+double maxConditionNumber = 0.0;
+double averageMatrixElement = 0.0;
+
+clock_t totalGaussJordan = 0;
+
 double gaussTotalMaxDiff = 0.0;
 double gaussTotalMinDiff = INFINITY;
 double gaussTotalAverageDiff = 0.0;
 
+clock_t totalGauss = 0;
+
+clock_t totalLUPBuild = 0;
+
+double lupTotalMaxDiff = 0.0;
+double lupTotalMinDiff = INFINITY;
+double lupTotalAverageDiff = 0.0;
+
+clock_t totalLUPSolve = 0;
 
 void CalculateConditionNumber (double **A)
 {
     double **copyA = CopyMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
     double **antiA = AllocateMatrix (MATRIX_SIZE, MATRIX_SIZE);
+    clock_t begin = clock ();
 
     if (!GaussJordanAlgo (copyA, antiA, MATRIX_SIZE, MATRIX_SIZE))
     {
@@ -25,18 +42,24 @@ void CalculateConditionNumber (double **A)
     }
     else
     {
+        totalGaussJordan += clock () - begin;
         double aMax = m_abs (A[0][0]);
         double antiAMax = m_abs (antiA[0][0]);
+        double average = 0.0;
 
         for (int row = 0; row < MATRIX_SIZE; ++row)
         {
             for (int col = 0; col < MATRIX_SIZE; ++col)
             {
+                average += A[row][col] / (MATRIX_SIZE * MATRIX_SIZE);
                 aMax = m_max (aMax, m_abs (A[row][col]));
                 antiAMax = m_max (antiAMax, m_abs (antiA[row][col]));
             }
         }
 
+        minConditionNumber = m_min (minConditionNumber, aMax * antiAMax);
+        maxConditionNumber = m_max (maxConditionNumber, aMax * antiAMax);
+        averageMatrixElement += average / RUN_COUNT;
         printf ("Condition number: %lf.\n", aMax * antiAMax);
     }
 
@@ -49,6 +72,7 @@ void FindGaussSolutionAndPrintDiff (double **A, double **B, double **X)
     double **copyA = CopyMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
     double **copyB = CopyMatrix (B, MATRIX_SIZE, 1);
     int *Xi = calloc (MATRIX_SIZE, sizeof (int));
+    clock_t begin = clock ();
 
     if (!Gauss (copyA, copyB, Xi, MATRIX_SIZE, MATRIX_SIZE, 1))
     {
@@ -56,6 +80,7 @@ void FindGaussSolutionAndPrintDiff (double **A, double **B, double **X)
     }
     else
     {
+        totalGauss += clock () - begin;
         double maxDifference = 0.0;
         double minDifference = INFINITY;
         double averageDifference = 0.0;
@@ -82,6 +107,58 @@ void FindGaussSolutionAndPrintDiff (double **A, double **B, double **X)
     free (Xi);
 }
 
+void FindLUPSolutionAndPrintDiff (double **A, double **B, double **X)
+{
+    double **LU = CopyMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
+    double **copyB = CopyMatrix (B, MATRIX_SIZE, 1);
+    int PrOrder [MATRIX_SIZE];
+    int PcOrder [MATRIX_SIZE];
+    clock_t begin = clock ();
+
+    if (!BuildLUP (LU, MATRIX_SIZE, PrOrder, PcOrder))
+    {
+        printf ("Unable to build LUP!\n");
+    }
+    else
+    {
+        totalLUPBuild += clock () - begin;
+        double **builtX;
+        begin = clock ();
+
+        if (!SolveLUP (LU, copyB, MATRIX_SIZE, 1, PrOrder, PcOrder, &builtX))
+        {
+            printf ("Unable to solve system with LUP!\n");
+        }
+        else
+        {
+            totalLUPSolve += clock () - begin;
+            double maxDifference = 0.0;
+            double minDifference = INFINITY;
+            double averageDifference = 0.0;
+
+            for (int index = 0; index < MATRIX_SIZE; ++index)
+            {
+                double currentDiff = m_abs (X[index][0] - builtX[index][0]);
+                maxDifference = m_max (maxDifference, currentDiff);
+                minDifference = m_min (m_abs (minDifference), m_abs (currentDiff));
+                averageDifference += currentDiff / MATRIX_SIZE;
+            }
+
+            printf ("LUP max difference: %20.13lf.\n", maxDifference);
+            printf ("LUP min difference: %20.13lf.\n", minDifference);
+            printf ("LUP average difference: %20.13lf.\n", averageDifference);
+
+            lupTotalMaxDiff = m_max (lupTotalMaxDiff, maxDifference);
+            lupTotalMinDiff = m_min (lupTotalMinDiff, minDifference);
+            lupTotalAverageDiff += averageDifference / RUN_COUNT;
+            FreeMatrix (builtX, MATRIX_SIZE, MATRIX_SIZE);
+        }
+    }
+
+    FreeMatrix (LU, MATRIX_SIZE, MATRIX_SIZE);
+    FreeMatrix (copyB, MATRIX_SIZE, 1);
+}
+
 void MainCycle ()
 {
     double **A = AllocateMatrix (MATRIX_SIZE, MATRIX_SIZE);
@@ -95,6 +172,7 @@ void MainCycle ()
 
     CalculateConditionNumber (A);
     FindGaussSolutionAndPrintDiff (A, B, X);
+    FindLUPSolutionAndPrintDiff (A, B, X);
 
     FreeMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
     FreeMatrix (X, MATRIX_SIZE, 1);
@@ -113,9 +191,29 @@ int main ()
     }
 
     printf ("\n### Report ###\n");
-    printf ("Gauss max difference: %20.13lf.\n", gaussTotalMaxDiff);
+    printf ("## 1\nMax condition number: %20.13lf.\n", maxConditionNumber);
+    printf ("Min condition number: %20.13lf.\n", minConditionNumber);
+    printf ("Average matrix element: %20.13lf.\n\n", averageMatrixElement);
+
+    printf ("## 2\nAverage A^-1 calculation time: %dms.\n\n",
+            (int) round (totalGaussJordan * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
+
+    printf ("## 3\nGauss max difference: %20.13lf.\n", gaussTotalMaxDiff);
     printf ("Gauss min difference: %20.13lf.\n", gaussTotalMinDiff);
-    printf ("Gauss average difference: %20.13lf.\n", gaussTotalAverageDiff);
+    printf ("Gauss average difference: %20.13lf.\n\n", gaussTotalAverageDiff);
+
+    printf ("## 4\nAverage gauss elimination time: %dms.\n\n",
+            (int) round (totalGauss * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
+
+    printf ("## 5\nAverage LUP build time: %dms.\n\n",
+            (int) round (totalLUPBuild * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
+
+    printf ("## 6\nLUP max difference: %20.13lf.\n", lupTotalMaxDiff);
+    printf ("LUP min difference: %20.13lf.\n", lupTotalMinDiff);
+    printf ("LUP average difference: %20.13lf.\n\n", lupTotalAverageDiff);
+
+    printf ("## 7\nAverage LUP solve time: %dms.\n\n",
+            (int) round (totalLUPSolve * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
 
     free (GlobalRand);
     return 0;
