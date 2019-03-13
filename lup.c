@@ -103,7 +103,7 @@ bool SolveLUP (double **LU, double **B, int matrixSize, int results, int *PrOrde
     {
         for (int col = 0; col < results; ++col)
         {
-            (*X)[row][col] = currentResult[PcOrder[row]][col];
+            (*X)[PcOrder[row]][col] = currentResult[row][col];
         }
     }
 
