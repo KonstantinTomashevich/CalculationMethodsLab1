@@ -1,3 +1,3 @@
 #pragma once
-#define MATRIX_SIZE 512
-#define N 32
+#define MATRIX_SIZE 256
+#define N 12
