@@ -58,6 +58,34 @@ double **CopyMatrix (double **matrix, int rows, int cols)
     return copy;
 }
 
+double **TransformMatrixByRowOrder (double **matrix, int rows, int cols, int *rowOrder)
+{
+    double **newMatrix = AllocateMatrix (rows, cols);
+    for (int row = 0; row < rows; ++row)
+    {
+        for (int col = 0; col < cols; ++col)
+        {
+            newMatrix[row][col] = matrix[rowOrder[row]][col];
+        }
+    }
+
+    return newMatrix;
+}
+
+double **TransformMatrixByColOrder (double **matrix, int rows, int cols, int *colOrder)
+{
+    double **newMatrix = AllocateMatrix (rows, cols);
+    for (int col = 0; col < cols; ++col)
+    {
+        for (int row = 0; row < rows; ++row)
+        {
+            newMatrix[row][col] = matrix[row][colOrder[col]];
+        }
+    }
+
+    return newMatrix;
+}
+
 void FreeMatrix (double **matrix, int rows, int cols)
 {
     for (int row = 0; row < rows; ++row)

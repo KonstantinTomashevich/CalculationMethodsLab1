@@ -69,3 +69,44 @@ bool BuildLUP (double **A, int matrixSize, int *PrOrder, int *PcOrder)
 
     return true;
 }
+
+bool SolveLUP (double **LU, double **B, int matrixSize, int results, int *PrOrder, int *PcOrder, double ***X)
+{
+    // Calculate Y from L*Y = Pr*B.
+    double **currentResult = TransformMatrixByRowOrder (B, matrixSize, results, PrOrder);
+
+    for (int step = 0; step < matrixSize - 1; ++step)
+    {
+        for (int row = step + 1; row < matrixSize; ++row)
+        {
+            AddMultipliedRow (currentResult, matrixSize, results, row, step, -LU[row][step]);
+        }
+    }
+
+    // Calculate Z from U*Z = Y.
+    for (int step = matrixSize - 1; step >= 0; --step)
+    {
+        if (step > 0)
+        {
+            for (int row = step - 1; row >= 0; --row)
+            {
+                AddMultipliedRow (currentResult, matrixSize, results, row, step, -LU[row][step] / LU[step][step]);
+            }
+        }
+
+        MultiplyRow (currentResult, matrixSize, results, step, 1.0/LU[step][step]);
+    }
+
+    // Calculate X from Pc * X = Z.
+    *X = AllocateMatrix (matrixSize, results);
+    for (int row = 0; row < matrixSize; ++row)
+    {
+        for (int col = 0; col < results; ++col)
+        {
+            (*X)[row][col] = currentResult[PcOrder[row]][col];
+        }
+    }
+
+    FreeMatrix (currentResult, matrixSize, results);
+    return true;
+}

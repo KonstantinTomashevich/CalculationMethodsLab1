@@ -8,6 +8,8 @@
 double RandomMatrixValue ();
 double **AllocateMatrix (int rows, int cols);
 double **CopyMatrix (double **matrix, int rows, int cols);
+double **TransformMatrixByRowOrder (double **matrix, int rows, int cols, int *rowOrder);
+double **TransformMatrixByColOrder (double **matrix, int rows, int cols, int *colOrder);
 void FreeMatrix (double **matrix, int rows, int cols);
 
 void FillTaskSpecificMatrix (double **matrix);
