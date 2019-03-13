@@ -5,6 +5,7 @@
 #include "mtwister.h"
 #include "gaussjordan.h"
 #include "gauss.h"
+#include "lup.h"
 
 #define RUN_COUNT 100
 extern MTRand *GlobalRand;
@@ -105,7 +106,7 @@ int main ()
     GlobalRand = malloc (sizeof (MTRand));
     *GlobalRand = SeedRand (1377);
 
-    for (int index = 0; index < 100; ++index)
+    for (int index = 0; index < RUN_COUNT; ++index)
     {
         printf ("\n### Run %d ### \n", index);
         MainCycle ();
