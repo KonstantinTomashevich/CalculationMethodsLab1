@@ -177,6 +177,14 @@ void AddMultipliedRow (double **matrix, int rows, int cols, int dst, int src, do
     }
 }
 
+void AddMultipliedRowPart (double **matrix, int rows, int cols, int dst, int src, double modifier, int startFrom)
+{
+    for (int col = startFrom; col < cols; ++col)
+    {
+        matrix[dst][col] += matrix[src][col] * modifier;
+    }
+}
+
 void AddMultipliedCol (double **matrix, int rows, int cols, int dst, int src, double modifier)
 {
     for (int row = 0; row < rows; ++row)

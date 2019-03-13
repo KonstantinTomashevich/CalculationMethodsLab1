@@ -21,4 +21,5 @@ void SwapCols (double **matrix, int rows, int cols, int col1, int col2);
 
 void MultiplyMatrices (double **first, double **second, double **output, int firstRows, int firstCols, int secondsCols);
 void AddMultipliedRow (double **matrix, int rows, int cols, int dst, int src, double modifier);
+void AddMultipliedRowPart (double **matrix, int rows, int cols, int dst, int src, double modifier, int startFrom);
 void AddMultipliedCol (double **matrix, int rows, int cols, int dst, int src, double modifier);
