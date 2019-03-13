@@ -51,17 +51,19 @@ void FindGaussSolutionAndPrintDiff (double **A, double **B, double **X)
     {
         double maxDifference = 0.0;
         double averageDifference = 0.0;
+        double summDifference = 0.0;
 
         for (int index = 0; index < MATRIX_SIZE; ++index)
         {
             double currentDiff = m_abs (X[Xi[index]][0] - copyB[index][0]);
             maxDifference = m_max (maxDifference, currentDiff);
             averageDifference += currentDiff / MATRIX_SIZE;
-            printf ("X%d diff (X/Gauss): %20.13lf %20.13lf\n", Xi[index], X[Xi[index]][0], copyB[index][0]);
+            summDifference += currentDiff;
         }
 
         printf ("Gauss max difference: %20.13lf.\n", maxDifference);
         printf ("Gauss average difference: %20.13lf.\n", averageDifference);
+        printf ("Gauss summ difference: %20.13lf.\n", summDifference);
     }
 
     FreeMatrix (copyA, MATRIX_SIZE, MATRIX_SIZE);
@@ -93,7 +95,11 @@ int main ()
     GlobalRand = malloc (sizeof (MTRand));
     *GlobalRand = SeedRand (1377);
 
-    MainCycle ();
+    for (int index = 0; index < 5; ++index)
+    {
+        MainCycle ();
+    }
+
     free (GlobalRand);
     return 0;
 }
