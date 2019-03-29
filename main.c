@@ -8,6 +8,7 @@
 #include "gauss.h"
 #include "lup.h"
 #include "cholesky.h"
+#include "relaxation.h"
 
 #define RUN_COUNT 100
 extern MTRand *GlobalRand;
@@ -36,6 +37,12 @@ double choleskyTotalMinDiff = INFINITY;
 double choleskyTotalAverageDiff = 0.0;
 
 clock_t totalCholeskySolve = 0;
+
+double relaxationTotalMaxDiff = 0.0;
+double relaxationTotalMinDiff = INFINITY;
+double relaxationTotalAverageDiff = 0.0;
+
+clock_t totalRelaxation = 0;
 
 void CalculateConditionNumber (double **A)
 {
@@ -172,7 +179,7 @@ void FindCholeskySolutionAndPrintDiff (double **A, double **B, double **X)
     double **copyB = CopyMatrix (B, MATRIX_SIZE, 1);
     int D [MATRIX_SIZE];
     clock_t begin = clock ();
-    
+
     if (!BuildCholeskyLT (LT, MATRIX_SIZE, D))
     {
         printf ("Unable to build Cholesky!\n");
@@ -214,6 +221,45 @@ void FindCholeskySolutionAndPrintDiff (double **A, double **B, double **X)
     FreeMatrix (copyB, MATRIX_SIZE, 1);
 }
 
+void FindRelaxationSolutionAndPrintDiff (double **A, double **B, double **X)
+{
+    double **copyA = CopyMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
+    double **copyB = CopyMatrix (B, MATRIX_SIZE, 1);
+    double **builtX;
+    clock_t begin = clock ();
+
+    if (!SolveRelaxation (copyA, MATRIX_SIZE, copyB, 1, &builtX))
+    {
+        printf ("Unable to solve system!\n");
+    }
+    else
+    {
+        totalRelaxation += clock () - begin;
+        double maxDifference = 0.0;
+        double minDifference = INFINITY;
+        double averageDifference = 0.0;
+
+        for (int index = 0; index < MATRIX_SIZE; ++index)
+        {
+            double currentDiff = m_abs (builtX[index][0] - X[index][0]);
+            maxDifference = m_max (maxDifference, currentDiff);
+            minDifference = m_min (m_abs (minDifference), m_abs (currentDiff));
+            averageDifference += currentDiff / MATRIX_SIZE;
+        }
+
+        printf ("Relaxation max difference: %20.13lf.\n", maxDifference);
+        printf ("Relaxation min difference: %20.13lf.\n", minDifference);
+        printf ("Relaxation average difference: %20.13lf.\n", averageDifference);
+
+        relaxationTotalMaxDiff = m_max (relaxationTotalMaxDiff, maxDifference);
+        relaxationTotalMinDiff = m_min (relaxationTotalMaxDiff, minDifference);
+        relaxationTotalAverageDiff += averageDifference / RUN_COUNT;
+    }
+
+    FreeMatrix (copyA, MATRIX_SIZE, MATRIX_SIZE);
+    FreeMatrix (copyB, MATRIX_SIZE, 1);
+}
+
 void MainCycle ()
 {
     double **A = AllocateMatrix (MATRIX_SIZE, MATRIX_SIZE);
@@ -229,6 +275,7 @@ void MainCycle ()
     FindGaussSolutionAndPrintDiff (A, B, X);
     FindLUPSolutionAndPrintDiff (A, B, X);
     FindCholeskySolutionAndPrintDiff (A, B, X);
+    FindRelaxationSolutionAndPrintDiff (A, B, X);
 
     FreeMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
     FreeMatrix (X, MATRIX_SIZE, 1);
@@ -278,6 +325,13 @@ int main ()
 
     printf ("## 9\nAverage Cholesky solve time: %dms.\n\n",
             (int) round (totalCholeskySolve * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
+
+    printf ("## 10\nRelaxation max difference: %20.13lf.\n", relaxationTotalMaxDiff);
+    printf ("Relaxation min difference: %20.13lf.\n", relaxationTotalMinDiff);
+    printf ("Relaxation average difference: %20.13lf.\n\n", relaxationTotalAverageDiff);
+
+    printf ("## 11\nAverage relaxation elimination time: %dms.\n\n",
+            (int) round (totalRelaxation * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
 
     free (GlobalRand);
     return 0;

@@ -8,4 +8,5 @@ add_executable(Lab1 main.c def.h
         matrixutils.c matrixutils.h
         gaussjordan.c gaussjordan.h
         gauss.c gauss.h lup.c lup.h
-        cholesky.c cholesky.h)
+        cholesky.c cholesky.h
+        relaxation.c relaxation.h)
