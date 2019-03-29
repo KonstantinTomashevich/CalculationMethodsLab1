@@ -32,9 +32,9 @@ static void SelectMax (double **A, double **B, int *Xi, int rows, int cols, int 
     if (maxCol != step)
     {
         SwapCols (A, rows, cols, step, maxCol);
-        int temp = Xi [step];
-        Xi [step] = Xi [maxCol];
-        Xi [maxCol] = temp;
+        int temp = Xi[step];
+        Xi[step] = Xi[maxCol];
+        Xi[maxCol] = temp;
     }
 }
 
@@ -66,7 +66,7 @@ bool Gauss (double **A, double **B, int *Xi, int rows, int cols, int results)
             for (int row = step - 1; row >= 0; --row)
             {
                 double modifier = -A[row][step] / A[step][step];
-                AddMultipliedRow (A, rows, cols, row, step, modifier);
+                A[row][step] += modifier * A[step][step];
                 AddMultipliedRow (B, rows, results, row, step, modifier);
             }
         }
