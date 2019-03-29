@@ -107,9 +107,9 @@ void FindGaussSolutionAndPrintDiff (double **A, double **B, double **X)
             averageDifference += currentDiff / MATRIX_SIZE;
         }
 
-        printf ("Gauss max difference: %20.13lf.\n", maxDifference);
-        printf ("Gauss min difference: %20.13lf.\n", minDifference);
-        printf ("Gauss average difference: %20.13lf.\n", averageDifference);
+        printf ("Gauss max difference: %23.16lf.\n", maxDifference);
+        printf ("Gauss min difference: %23.16lf.\n", minDifference);
+        printf ("Gauss average difference: %23.16lf.\n", averageDifference);
 
         gaussTotalMaxDiff = m_max (gaussTotalMaxDiff, maxDifference);
         gaussTotalMinDiff = m_min (gaussTotalMaxDiff, minDifference);
@@ -158,9 +158,9 @@ void FindLUPSolutionAndPrintDiff (double **A, double **B, double **X)
                 averageDifference += currentDiff / MATRIX_SIZE;
             }
 
-            printf ("LUP max difference: %20.13lf.\n", maxDifference);
-            printf ("LUP min difference: %20.13lf.\n", minDifference);
-            printf ("LUP average difference: %20.13lf.\n", averageDifference);
+            printf ("LUP max difference: %23.16lf.\n", maxDifference);
+            printf ("LUP min difference: %23.16lf.\n", minDifference);
+            printf ("LUP average difference: %23.16lf.\n", averageDifference);
 
             lupTotalMaxDiff = m_max (lupTotalMaxDiff, maxDifference);
             lupTotalMinDiff = m_min (lupTotalMinDiff, minDifference);
@@ -206,9 +206,9 @@ void FindCholeskySolutionAndPrintDiff (double **A, double **B, double **X)
                 averageDifference += currentDiff / MATRIX_SIZE;
             }
 
-            printf ("Cholesky max difference: %20.13lf.\n", maxDifference);
-            printf ("Cholesky min difference: %20.13lf.\n", minDifference);
-            printf ("Cholesky average difference: %20.13lf.\n", averageDifference);
+            printf ("Cholesky max difference: %23.16lf.\n", maxDifference);
+            printf ("Cholesky min difference: %23.16lf.\n", minDifference);
+            printf ("Cholesky average difference: %23.16lf.\n", averageDifference);
 
             choleskyTotalMaxDiff = m_max (lupTotalMaxDiff, maxDifference);
             choleskyTotalMinDiff = m_min (lupTotalMinDiff, minDifference);
@@ -247,9 +247,9 @@ void FindRelaxationSolutionAndPrintDiff (double **A, double **B, double **X)
             averageDifference += currentDiff / MATRIX_SIZE;
         }
 
-        printf ("Relaxation max difference: %20.13lf.\n", maxDifference);
-        printf ("Relaxation min difference: %20.13lf.\n", minDifference);
-        printf ("Relaxation average difference: %20.13lf.\n", averageDifference);
+        printf ("Relaxation max difference: %23.16lf.\n", maxDifference);
+        printf ("Relaxation min difference: %23.16lf.\n", minDifference);
+        printf ("Relaxation average difference: %23.16lf.\n", averageDifference);
 
         relaxationTotalMaxDiff = m_max (relaxationTotalMaxDiff, maxDifference);
         relaxationTotalMinDiff = m_min (relaxationTotalMaxDiff, minDifference);
@@ -295,16 +295,16 @@ int main ()
     }
 
     printf ("\n### Report ###\n");
-    printf ("## 1\nMax condition number: %20.13lf.\n", maxConditionNumber);
-    printf ("Min condition number: %20.13lf.\n", minConditionNumber);
-    printf ("Average matrix element: %20.13lf.\n\n", averageMatrixElement);
+    printf ("## 1\nMax condition number: %23.16lf.\n", maxConditionNumber);
+    printf ("Min condition number: %23.16lf.\n", minConditionNumber);
+    printf ("Average matrix element: %23.16lf.\n\n", averageMatrixElement);
 
     printf ("## 2\nAverage A^-1 calculation time: %dms.\n\n",
             (int) round (totalGaussJordan * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
 
-    printf ("## 3\nGauss max difference: %20.13lf.\n", gaussTotalMaxDiff);
-    printf ("Gauss min difference: %20.13lf.\n", gaussTotalMinDiff);
-    printf ("Gauss average difference: %20.13lf.\n\n", gaussTotalAverageDiff);
+    printf ("## 3\nGauss max difference: %23.16lf.\n", gaussTotalMaxDiff);
+    printf ("Gauss min difference: %23.16lf.\n", gaussTotalMinDiff);
+    printf ("Gauss average difference: %23.16lf.\n\n", gaussTotalAverageDiff);
 
     printf ("## 4\nAverage gauss elimination time: %dms.\n\n",
             (int) round (totalGauss * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
@@ -312,23 +312,23 @@ int main ()
     printf ("## 5\nAverage LUP build time: %dms.\n\n",
             (int) round (totalLUPBuild * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
 
-    printf ("## 6\nLUP max difference: %20.13lf.\n", lupTotalMaxDiff);
-    printf ("LUP min difference: %20.13lf.\n", lupTotalMinDiff);
-    printf ("LUP average difference: %20.13lf.\n\n", lupTotalAverageDiff);
+    printf ("## 6\nLUP max difference: %23.16lf.\n", lupTotalMaxDiff);
+    printf ("LUP min difference: %23.16lf.\n", lupTotalMinDiff);
+    printf ("LUP average difference: %23.16lf.\n\n", lupTotalAverageDiff);
 
     printf ("## 7\nAverage LUP solve time: %dms.\n\n",
             (int) round (totalLUPSolve * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
 
-    printf ("## 8\nCholesky max difference: %20.13lf.\n", choleskyTotalMaxDiff);
-    printf ("Cholesky min difference: %20.13lf.\n", choleskyTotalMinDiff);
-    printf ("Cholesky average difference: %20.13lf.\n\n", choleskyTotalAverageDiff);
+    printf ("## 8\nCholesky max difference: %23.16lf.\n", choleskyTotalMaxDiff);
+    printf ("Cholesky min difference: %23.16lf.\n", choleskyTotalMinDiff);
+    printf ("Cholesky average difference: %23.16lf.\n\n", choleskyTotalAverageDiff);
 
     printf ("## 9\nAverage Cholesky solve time: %dms.\n\n",
             (int) round (totalCholeskySolve * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
 
-    printf ("## 10\nRelaxation max difference: %20.13lf.\n", relaxationTotalMaxDiff);
-    printf ("Relaxation min difference: %20.13lf.\n", relaxationTotalMinDiff);
-    printf ("Relaxation average difference: %20.13lf.\n\n", relaxationTotalAverageDiff);
+    printf ("## 10\nRelaxation max difference: %23.16lf.\n", relaxationTotalMaxDiff);
+    printf ("Relaxation min difference: %23.16lf.\n", relaxationTotalMinDiff);
+    printf ("Relaxation average difference: %23.16lf.\n\n", relaxationTotalAverageDiff);
 
     printf ("## 11\nAverage relaxation elimination time: %dms.\n\n",
             (int) round (totalRelaxation * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
