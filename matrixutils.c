@@ -115,7 +115,7 @@ void FillTaskSpecificMatrix (double **matrix)
         {
             if (col != diag)
             {
-                value += matrix[diag][col];
+                value += fabs (matrix[diag][col]);
             }
         }
 
