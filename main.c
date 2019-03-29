@@ -7,6 +7,7 @@
 #include "gaussjordan.h"
 #include "gauss.h"
 #include "lup.h"
+#include "cholesky.h"
 
 #define RUN_COUNT 100
 extern MTRand *GlobalRand;
@@ -29,6 +30,12 @@ double lupTotalMinDiff = INFINITY;
 double lupTotalAverageDiff = 0.0;
 
 clock_t totalLUPSolve = 0;
+
+double choleskyTotalMaxDiff = 0.0;
+double choleskyTotalMinDiff = INFINITY;
+double choleskyTotalAverageDiff = 0.0;
+
+clock_t totalCholeskySolve = 0;
 
 void CalculateConditionNumber (double **A)
 {
@@ -159,6 +166,54 @@ void FindLUPSolutionAndPrintDiff (double **A, double **B, double **X)
     FreeMatrix (copyB, MATRIX_SIZE, 1);
 }
 
+void FindCholeskySolutionAndPrintDiff (double **A, double **B, double **X)
+{
+    double **LT = CopyMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
+    double **copyB = CopyMatrix (B, MATRIX_SIZE, 1);
+    int D [MATRIX_SIZE];
+    clock_t begin = clock ();
+    
+    if (!BuildCholeskyLT (LT, MATRIX_SIZE, D))
+    {
+        printf ("Unable to build Cholesky!\n");
+    }
+    else
+    {
+        double **builtX;
+        if (!SolveCholesky (LT, MATRIX_SIZE, D, copyB, 1, &builtX))
+        {
+            printf ("Unable to solve system with Cholesky!\n");
+        }
+        else
+        {
+            totalCholeskySolve += clock () - begin;
+            double maxDifference = 0.0;
+            double minDifference = INFINITY;
+            double averageDifference = 0.0;
+
+            for (int index = 0; index < MATRIX_SIZE; ++index)
+            {
+                double currentDiff = m_abs (X[index][0] - builtX[index][0]);
+                maxDifference = m_max (maxDifference, currentDiff);
+                minDifference = m_min (m_abs (minDifference), m_abs (currentDiff));
+                averageDifference += currentDiff / MATRIX_SIZE;
+            }
+
+            printf ("Cholesky max difference: %20.13lf.\n", maxDifference);
+            printf ("Cholesky min difference: %20.13lf.\n", minDifference);
+            printf ("Cholesky average difference: %20.13lf.\n", averageDifference);
+
+            choleskyTotalMaxDiff = m_max (lupTotalMaxDiff, maxDifference);
+            choleskyTotalMinDiff = m_min (lupTotalMinDiff, minDifference);
+            choleskyTotalAverageDiff += averageDifference / RUN_COUNT;
+            FreeMatrix (builtX, MATRIX_SIZE, MATRIX_SIZE);
+        }
+    }
+
+    FreeMatrix (LT, MATRIX_SIZE, MATRIX_SIZE);
+    FreeMatrix (copyB, MATRIX_SIZE, 1);
+}
+
 void MainCycle ()
 {
     double **A = AllocateMatrix (MATRIX_SIZE, MATRIX_SIZE);
@@ -173,6 +228,7 @@ void MainCycle ()
     CalculateConditionNumber (A);
     FindGaussSolutionAndPrintDiff (A, B, X);
     FindLUPSolutionAndPrintDiff (A, B, X);
+    FindCholeskySolutionAndPrintDiff (A, B, X);
 
     FreeMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
     FreeMatrix (X, MATRIX_SIZE, 1);
@@ -181,6 +237,7 @@ void MainCycle ()
 
 int main ()
 {
+    // TODO: After finishing all algos, speed up them by addition of "start from row/col" parameter to util functions.
     GlobalRand = malloc (sizeof (MTRand));
     *GlobalRand = SeedRand (1377);
 
@@ -214,6 +271,13 @@ int main ()
 
     printf ("## 7\nAverage LUP solve time: %dms.\n\n",
             (int) round (totalLUPSolve * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
+
+    printf ("## 8\nCholesky max difference: %20.13lf.\n", choleskyTotalMaxDiff);
+    printf ("Cholesky min difference: %20.13lf.\n", choleskyTotalMinDiff);
+    printf ("Cholesky average difference: %20.13lf.\n\n", choleskyTotalAverageDiff);
+
+    printf ("## 9\nAverage Cholesky solve time: %dms.\n\n",
+            (int) round (totalCholeskySolve * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
 
     free (GlobalRand);
     return 0;

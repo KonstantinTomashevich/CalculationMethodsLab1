@@ -7,4 +7,5 @@ add_executable(Lab1 main.c def.h
         mtwister.h mtwister.c
         matrixutils.c matrixutils.h
         gaussjordan.c gaussjordan.h
-        gauss.c gauss.h lup.c lup.h)
+        gauss.c gauss.h lup.c lup.h
+        cholesky.c cholesky.h)
