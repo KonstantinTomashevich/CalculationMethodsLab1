@@ -9,4 +9,5 @@ add_executable(Lab1 main.c def.h
         gaussjordan.c gaussjordan.h
         gauss.c gauss.h lup.c lup.h
         cholesky.c cholesky.h
-        relaxation.c relaxation.h)
+        relaxation.c relaxation.h
+        householder.c householder.h)
