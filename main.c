@@ -10,6 +10,7 @@
 #include "cholesky.h"
 #include "relaxation.h"
 #include "householder.h"
+#include "minquads.h"
 
 #define RUN_COUNT 100
 extern MTRand *GlobalRand;
@@ -50,6 +51,12 @@ double householderTotalMinDiff = INFINITY;
 double householderTotalAverageDiff = 0.0;
 
 clock_t totalHouseholder = 0;
+
+double minquadsTotalMaxDiff = 0.0;
+double minquadsTotalMinDiff = INFINITY;
+double minquadsTotalAverageDiff = 0.0;
+
+clock_t totalMinQuads = 0;
 
 void CalculateConditionNumber (double **A)
 {
@@ -271,7 +278,6 @@ void FindHouseholderSolutionAndPrintDiff (double **A, double **B, double **X)
 {
     double **copyA = CopyMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
     double **copyB = CopyMatrix (B, MATRIX_SIZE, 1);
-    double **builtX;
     clock_t begin = clock ();
 
     if (!SolveHouseholder (copyA, MATRIX_SIZE, copyB, 1))
@@ -306,6 +312,47 @@ void FindHouseholderSolutionAndPrintDiff (double **A, double **B, double **X)
     FreeMatrix (copyB, MATRIX_SIZE, 1);
 }
 
+void FindMinQuadsSolutionAndPrintDiff (double **A, double **B, double **X)
+{
+    double **copyA = CopyMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
+    double **copyB = CopyMatrix (B, MATRIX_SIZE, 1);
+    double **builtX;
+    int colsCount = N * 20;
+    clock_t begin = clock ();
+
+    if (!SolveMinQuads (copyA, MATRIX_SIZE, colsCount, copyB, 1, &builtX))
+    {
+        printf ("Unable to solve system!\n");
+    }
+    else
+    {
+        totalMinQuads += clock () - begin;
+        double maxDifference = 0.0;
+        double minDifference = INFINITY;
+        double averageDifference = 0.0;
+
+        for (int index = 0; index < colsCount; ++index)
+        {
+            double currentDiff = m_abs (builtX[index][0] - X[index][0]);
+            maxDifference = m_max (maxDifference, currentDiff);
+            minDifference = m_min (m_abs (minDifference), m_abs (currentDiff));
+            averageDifference += currentDiff / MATRIX_SIZE;
+        }
+
+        printf ("MinQuads max difference: %23.16lf.\n", maxDifference);
+        printf ("MinQuads min difference: %23.16lf.\n", minDifference);
+        printf ("MinQuads average difference: %23.16lf.\n", averageDifference);
+
+        minquadsTotalMaxDiff = m_max (minquadsTotalMaxDiff, maxDifference);
+        minquadsTotalMinDiff = m_min (minquadsTotalMaxDiff, minDifference);
+        minquadsTotalAverageDiff += averageDifference / RUN_COUNT;
+    }
+
+    FreeMatrix (copyA, MATRIX_SIZE, MATRIX_SIZE);
+    FreeMatrix (copyB, MATRIX_SIZE, 1);
+}
+
+
 void MainCycle ()
 {
     double **A = AllocateMatrix (MATRIX_SIZE, MATRIX_SIZE);
@@ -323,6 +370,7 @@ void MainCycle ()
     FindCholeskySolutionAndPrintDiff (A, B, X);
     FindRelaxationSolutionAndPrintDiff (A, B, X);
     FindHouseholderSolutionAndPrintDiff (A, B, X);
+    FindMinQuadsSolutionAndPrintDiff (A, B, X);
 
     FreeMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
     FreeMatrix (X, MATRIX_SIZE, 1);
@@ -387,6 +435,13 @@ int main ()
     printf ("## 13\nAverage householder elimination time: %dms.\n\n",
             (int) round (totalHouseholder * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
 
+    printf ("## 14\nMinQuads max difference: %23.16lf.\n", minquadsTotalMaxDiff);
+    printf ("MinQuads min difference: %23.16lf.\n", minquadsTotalMinDiff);
+    printf ("MinQuads average difference: %23.16lf.\n\n", minquadsTotalAverageDiff);
+
+    printf ("## 15\nAverage minquads elimination time: %dms.\n\n",
+            (int) round (totalMinQuads * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
+    
     free (GlobalRand);
     return 0;
 }

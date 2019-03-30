@@ -86,6 +86,20 @@ double **TransformMatrixByColOrder (double **matrix, int rows, int cols, int *co
     return newMatrix;
 }
 
+double **TransposeMatrix (double **matrix, int rows, int cols)
+{
+    double **transposed = AllocateMatrix (cols, rows);
+    for (int row = 0; row < cols; ++row)
+    {
+        for (int col = 0; col < rows; ++col)
+        {
+            transposed[row][col] = matrix[col][row];
+        }
+    }
+
+    return transposed;
+}
+
 void FreeMatrix (double **matrix, int rows, int cols)
 {
     for (int row = 0; row < rows; ++row)
