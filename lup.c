@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 
 static void SelectMax (double **A, int matrixSize, int *PrOrder, int *PcOrder, int step)
 {
@@ -14,7 +15,7 @@ static void SelectMax (double **A, int matrixSize, int *PrOrder, int *PcOrder, i
     {
         for (int col = step; col < matrixSize; ++col)
         {
-            if (m_abs (A[row][col]) > m_abs (max))
+            if (fabs (A[row][col]) > fabs (max))
             {
                 max = A[row][col];
                 maxRow = row;

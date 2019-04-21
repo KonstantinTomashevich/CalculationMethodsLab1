@@ -1,10 +1,6 @@
 #pragma once
 #include "def.h"
 
-#define m_abs(a) (((a) > 0.0 ? (a) : (-(a))))
-#define m_max(a, b) (((a) > (b) ? (a) : (b)))
-#define m_min(a, b) (((a) < (b) ? (a) : (b)))
-
 double RandomMatrixValue ();
 double **AllocateMatrix (int rows, int cols);
 double **CopyMatrix (double **matrix, int rows, int cols);

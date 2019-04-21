@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 
 static void SelectMax (double **A, double **B, int *Xi, int rows, int cols, int results, int step)
 {
@@ -14,7 +15,7 @@ static void SelectMax (double **A, double **B, int *Xi, int rows, int cols, int 
     {
         for (int col = step; col < cols; ++col)
         {
-            if (m_abs (A[row][col]) > m_abs (max))
+            if (fabs (A[row][col]) > fabs (max))
             {
                 max = A[row][col];
                 maxRow = row;

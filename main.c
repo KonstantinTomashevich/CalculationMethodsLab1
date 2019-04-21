@@ -21,47 +21,47 @@ double averageMatrixElement = 0.0;
 
 clock_t totalGaussJordan = 0;
 
-double gaussTotalMaxDiff = 0.0;
-double gaussTotalMinDiff = INFINITY;
-double gaussTotalAverageDiff = 0.0;
+double gaussTotalMaxNormal = 0.0;
+double gaussTotalMinNormal = INFINITY;
+double gaussTotalAverageNormal = 0.0;
 
 clock_t totalGauss = 0;
 
 clock_t totalLUPBuild = 0;
 
-double lupTotalMaxDiff = 0.0;
-double lupTotalMinDiff = INFINITY;
-double lupTotalAverageDiff = 0.0;
+double lupTotalMaxNormal = 0.0;
+double lupTotalMinNormal = INFINITY;
+double lupTotalAverageNormal = 0.0;
 
 clock_t totalLUPSolve = 0;
 
-double choleskyTotalMaxDiff = 0.0;
-double choleskyTotalMinDiff = INFINITY;
-double choleskyTotalAverageDiff = 0.0;
+double choleskyTotalMaxNormal = 0.0;
+double choleskyTotalMinNormal = INFINITY;
+double choleskyTotalAverageNormal = 0.0;
 
 clock_t totalCholeskySolve = 0;
 
-double relaxationTotalMaxDiff = 0.0;
-double relaxationTotalMinDiff = INFINITY;
-double relaxationTotalAverageDiff = 0.0;
+double relaxationTotalMaxNormal = 0.0;
+double relaxationTotalMinNormal = INFINITY;
+double relaxationTotalAverageNormal = 0.0;
 
 clock_t totalRelaxation = 0;
 
-double householderTotalMaxDiff = 0.0;
-double householderTotalMinDiff = INFINITY;
-double householderTotalAverageDiff = 0.0;
+double householderTotalMaxNormal = 0.0;
+double householderTotalMinNormal = INFINITY;
+double householderTotalAverageNormal = 0.0;
 
 clock_t totalHouseholder = 0;
 
-double minquadsTotalMaxDiff = 0.0;
-double minquadsTotalMinDiff = INFINITY;
-double minquadsTotalAverageDiff = 0.0;
+double minquadsTotalMaxNormal = 0.0;
+double minquadsTotalMinNormal = INFINITY;
+double minquadsTotalAverageNormal = 0.0;
 
 clock_t totalMinQuads = 0;
 
-double gmresTotalMaxDiff = 0.0;
-double gmresTotalMinDiff = INFINITY;
-double gmresTotalAverageDiff = 0.0;
+double gmresTotalMaxNormal = 0.0;
+double gmresTotalMinNormal = INFINITY;
+double gmresTotalAverageNormal = 0.0;
 
 clock_t totalGMRES = 0;
 
@@ -78,8 +78,8 @@ void CalculateConditionNumber (double **A)
     else
     {
         totalGaussJordan += clock () - begin;
-        double aMax = m_abs (A[0][0]);
-        double antiAMax = m_abs (antiA[0][0]);
+        double aMax = fabs (A[0][0]);
+        double antiAMax = fabs (antiA[0][0]);
         double average = 0.0;
 
         for (int row = 0; row < MATRIX_SIZE; ++row)
@@ -87,13 +87,13 @@ void CalculateConditionNumber (double **A)
             for (int col = 0; col < MATRIX_SIZE; ++col)
             {
                 average += A[row][col] / (MATRIX_SIZE * MATRIX_SIZE);
-                aMax = m_max (aMax, m_abs (A[row][col]));
-                antiAMax = m_max (antiAMax, m_abs (antiA[row][col]));
+                aMax = fmax (aMax, fabs (A[row][col]));
+                antiAMax = fmax (antiAMax, fabs (antiA[row][col]));
             }
         }
 
-        minConditionNumber = m_min (minConditionNumber, aMax * antiAMax);
-        maxConditionNumber = m_max (maxConditionNumber, aMax * antiAMax);
+        minConditionNumber = fmin (minConditionNumber, aMax * antiAMax);
+        maxConditionNumber = fmax (maxConditionNumber, aMax * antiAMax);
         averageMatrixElement += average / RUN_COUNT;
         printf ("Condition number: %lf.\n", aMax * antiAMax);
     }
@@ -102,7 +102,7 @@ void CalculateConditionNumber (double **A)
     FreeMatrix (antiA, MATRIX_SIZE, MATRIX_SIZE);
 }
 
-void FindGaussSolutionAndPrintDiff (double **A, double **B, double **X)
+void FindGaussSolutionAndPrintNormal (double **A, double **B, double **X)
 {
     double **copyA = CopyMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
     double **copyB = CopyMatrix (B, MATRIX_SIZE, 1);
@@ -116,25 +116,20 @@ void FindGaussSolutionAndPrintDiff (double **A, double **B, double **X)
     else
     {
         totalGauss += clock () - begin;
-        double maxDifference = 0.0;
-        double minDifference = INFINITY;
-        double averageDifference = 0.0;
+        double normal = 0.0;
 
         for (int index = 0; index < MATRIX_SIZE; ++index)
         {
-            double currentDiff = m_abs (X[Xi[index]][0] - copyB[index][0]);
-            maxDifference = m_max (maxDifference, currentDiff);
-            minDifference = m_min (m_abs (minDifference), m_abs (currentDiff));
-            averageDifference += currentDiff / MATRIX_SIZE;
+            double currentNormal = fabs (X[Xi[index]][0] - copyB[index][0]);
+            normal += currentNormal * currentNormal;
         }
 
-        printf ("Gauss max difference: %23.16lf.\n", maxDifference);
-        printf ("Gauss min difference: %23.16lf.\n", minDifference);
-        printf ("Gauss average difference: %23.16lf.\n", averageDifference);
+        normal = sqrt (normal);
+        printf ("Gauss normal (quadric): %23.16lf.\n", normal);
 
-        gaussTotalMaxDiff = m_max (gaussTotalMaxDiff, maxDifference);
-        gaussTotalMinDiff = m_min (gaussTotalMaxDiff, minDifference);
-        gaussTotalAverageDiff += averageDifference / RUN_COUNT;
+        gaussTotalMaxNormal = fmax (gaussTotalMaxNormal, normal);
+        gaussTotalMinNormal = fmin (gaussTotalMinNormal, normal);
+        gaussTotalAverageNormal += normal / RUN_COUNT;
     }
 
     FreeMatrix (copyA, MATRIX_SIZE, MATRIX_SIZE);
@@ -142,7 +137,7 @@ void FindGaussSolutionAndPrintDiff (double **A, double **B, double **X)
     free (Xi);
 }
 
-void FindLUPSolutionAndPrintDiff (double **A, double **B, double **X)
+void FindLUPSolutionAndPrintNormal (double **A, double **B, double **X)
 {
     double **LU = CopyMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
     double **copyB = CopyMatrix (B, MATRIX_SIZE, 1);
@@ -167,25 +162,20 @@ void FindLUPSolutionAndPrintDiff (double **A, double **B, double **X)
         else
         {
             totalLUPSolve += clock () - begin;
-            double maxDifference = 0.0;
-            double minDifference = INFINITY;
-            double averageDifference = 0.0;
+            double normal = 0.0;
 
             for (int index = 0; index < MATRIX_SIZE; ++index)
             {
-                double currentDiff = m_abs (X[index][0] - builtX[index][0]);
-                maxDifference = m_max (maxDifference, currentDiff);
-                minDifference = m_min (m_abs (minDifference), m_abs (currentDiff));
-                averageDifference += currentDiff / MATRIX_SIZE;
+                double currentNormal = fabs (X[index][0] - builtX[index][0]);
+                normal += currentNormal * currentNormal;
             }
 
-            printf ("LUP max difference: %23.16lf.\n", maxDifference);
-            printf ("LUP min difference: %23.16lf.\n", minDifference);
-            printf ("LUP average difference: %23.16lf.\n", averageDifference);
+            normal = sqrt (normal);
+            printf ("LUP normal (quadric): %23.16lf.\n", normal);
 
-            lupTotalMaxDiff = m_max (lupTotalMaxDiff, maxDifference);
-            lupTotalMinDiff = m_min (lupTotalMinDiff, minDifference);
-            lupTotalAverageDiff += averageDifference / RUN_COUNT;
+            lupTotalMaxNormal = fmax (lupTotalMaxNormal, normal);
+            lupTotalMinNormal = fmin (lupTotalMinNormal, normal);
+            lupTotalAverageNormal += normal / RUN_COUNT;
             FreeMatrix (builtX, MATRIX_SIZE, MATRIX_SIZE);
         }
     }
@@ -194,7 +184,7 @@ void FindLUPSolutionAndPrintDiff (double **A, double **B, double **X)
     FreeMatrix (copyB, MATRIX_SIZE, 1);
 }
 
-void FindCholeskySolutionAndPrintDiff (double **A, double **B, double **X)
+void FindCholeskySolutionAndPrintNormal (double **A, double **B, double **X)
 {
     double **LT = CopyMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
     double **copyB = CopyMatrix (B, MATRIX_SIZE, 1);
@@ -215,25 +205,20 @@ void FindCholeskySolutionAndPrintDiff (double **A, double **B, double **X)
         else
         {
             totalCholeskySolve += clock () - begin;
-            double maxDifference = 0.0;
-            double minDifference = INFINITY;
-            double averageDifference = 0.0;
+            double normal = 0.0;
 
             for (int index = 0; index < MATRIX_SIZE; ++index)
             {
-                double currentDiff = m_abs (X[index][0] - builtX[index][0]);
-                maxDifference = m_max (maxDifference, currentDiff);
-                minDifference = m_min (m_abs (minDifference), m_abs (currentDiff));
-                averageDifference += currentDiff / MATRIX_SIZE;
+                double currentNormal = fabs (X[index][0] - builtX[index][0]);
+                normal += currentNormal * currentNormal;
             }
 
-            printf ("Cholesky max difference: %23.16lf.\n", maxDifference);
-            printf ("Cholesky min difference: %23.16lf.\n", minDifference);
-            printf ("Cholesky average difference: %23.16lf.\n", averageDifference);
+            normal = sqrt (normal);
+            printf ("Cholesky normal (quadric): %23.16lf.\n", normal);
 
-            choleskyTotalMaxDiff = m_max (lupTotalMaxDiff, maxDifference);
-            choleskyTotalMinDiff = m_min (lupTotalMinDiff, minDifference);
-            choleskyTotalAverageDiff += averageDifference / RUN_COUNT;
+            choleskyTotalMaxNormal = fmax (choleskyTotalMaxNormal, normal);
+            choleskyTotalMinNormal = fmin (choleskyTotalMinNormal, normal);
+            choleskyTotalAverageNormal += normal / RUN_COUNT;
             FreeMatrix (builtX, MATRIX_SIZE, MATRIX_SIZE);
         }
     }
@@ -242,7 +227,7 @@ void FindCholeskySolutionAndPrintDiff (double **A, double **B, double **X)
     FreeMatrix (copyB, MATRIX_SIZE, 1);
 }
 
-void FindRelaxationSolutionAndPrintDiff (double **A, double **B, double **X)
+void FindRelaxationSolutionAndPrintNormal (double **A, double **B, double **X)
 {
     double **copyA = CopyMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
     double **copyB = CopyMatrix (B, MATRIX_SIZE, 1);
@@ -256,32 +241,27 @@ void FindRelaxationSolutionAndPrintDiff (double **A, double **B, double **X)
     else
     {
         totalRelaxation += clock () - begin;
-        double maxDifference = 0.0;
-        double minDifference = INFINITY;
-        double averageDifference = 0.0;
+        double normal = 0.0;
 
         for (int index = 0; index < MATRIX_SIZE; ++index)
         {
-            double currentDiff = m_abs (builtX[index][0] - X[index][0]);
-            maxDifference = m_max (maxDifference, currentDiff);
-            minDifference = m_min (m_abs (minDifference), m_abs (currentDiff));
-            averageDifference += currentDiff / MATRIX_SIZE;
+            double currentNormal = fabs (builtX[index][0] - X[index][0]);
+            normal += currentNormal * currentNormal;
         }
 
-        printf ("Relaxation max difference: %23.16lf.\n", maxDifference);
-        printf ("Relaxation min difference: %23.16lf.\n", minDifference);
-        printf ("Relaxation average difference: %23.16lf.\n", averageDifference);
+        normal = sqrt (normal);
+        printf ("Relaxation normal (quadric): %23.16lf.\n", normal);
 
-        relaxationTotalMaxDiff = m_max (relaxationTotalMaxDiff, maxDifference);
-        relaxationTotalMinDiff = m_min (relaxationTotalMaxDiff, minDifference);
-        relaxationTotalAverageDiff += averageDifference / RUN_COUNT;
+        relaxationTotalMaxNormal = fmax (relaxationTotalMaxNormal, normal);
+        relaxationTotalMinNormal = fmin (relaxationTotalMinNormal, normal);
+        relaxationTotalAverageNormal += normal / RUN_COUNT;
     }
 
     FreeMatrix (copyA, MATRIX_SIZE, MATRIX_SIZE);
     FreeMatrix (copyB, MATRIX_SIZE, 1);
 }
 
-void FindHouseholderSolutionAndPrintDiff (double **A, double **B, double **X)
+void FindHouseholderSolutionAndPrintNormal (double **A, double **B, double **X)
 {
     double **copyA = CopyMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
     double **copyB = CopyMatrix (B, MATRIX_SIZE, 1);
@@ -294,32 +274,27 @@ void FindHouseholderSolutionAndPrintDiff (double **A, double **B, double **X)
     else
     {
         totalHouseholder += clock () - begin;
-        double maxDifference = 0.0;
-        double minDifference = INFINITY;
-        double averageDifference = 0.0;
+        double normal = 0.0;
 
         for (int index = 0; index < MATRIX_SIZE; ++index)
         {
-            double currentDiff = m_abs (copyB[index][0] - X[index][0]);
-            maxDifference = m_max (maxDifference, currentDiff);
-            minDifference = m_min (m_abs (minDifference), m_abs (currentDiff));
-            averageDifference += currentDiff / MATRIX_SIZE;
+            double currentNormal = fabs (copyB[index][0] - X[index][0]);
+            normal += currentNormal * currentNormal;
         }
 
-        printf ("Householder max difference: %23.16lf.\n", maxDifference);
-        printf ("Householder min difference: %23.16lf.\n", minDifference);
-        printf ("Householder average difference: %23.16lf.\n", averageDifference);
+        normal = sqrt (normal);
+        printf ("Householder normal (quadric): %23.16lf.\n", normal);
 
-        householderTotalMaxDiff = m_max (householderTotalMaxDiff, maxDifference);
-        householderTotalMinDiff = m_min (householderTotalMaxDiff, minDifference);
-        householderTotalAverageDiff += averageDifference / RUN_COUNT;
+        householderTotalMaxNormal = fmax (householderTotalMaxNormal, normal);
+        householderTotalMinNormal = fmin (householderTotalMinNormal, normal);
+        householderTotalAverageNormal += normal / RUN_COUNT;
     }
 
     FreeMatrix (copyA, MATRIX_SIZE, MATRIX_SIZE);
     FreeMatrix (copyB, MATRIX_SIZE, 1);
 }
 
-void FindMinQuadsSolutionAndPrintDiff (double **A, double **B, double **X)
+void FindMinQuadsSolutionAndPrintNormal (double **A, double **B, double **X)
 {
     double **copyA = CopyMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
     double **copyB = CopyMatrix (B, MATRIX_SIZE, 1);
@@ -334,32 +309,27 @@ void FindMinQuadsSolutionAndPrintDiff (double **A, double **B, double **X)
     else
     {
         totalMinQuads += clock () - begin;
-        double maxDifference = 0.0;
-        double minDifference = INFINITY;
-        double averageDifference = 0.0;
+        double normal = 0.0;
 
         for (int index = 0; index < colsCount; ++index)
         {
-            double currentDiff = m_abs (builtX[index][0] - X[index][0]);
-            maxDifference = m_max (maxDifference, currentDiff);
-            minDifference = m_min (m_abs (minDifference), m_abs (currentDiff));
-            averageDifference += currentDiff / MATRIX_SIZE;
+            double currentNormal = fabs (builtX[index][0] - X[index][0]);
+            normal += currentNormal * currentNormal;
         }
 
-        printf ("MinQuads max difference: %23.16lf.\n", maxDifference);
-        printf ("MinQuads min difference: %23.16lf.\n", minDifference);
-        printf ("MinQuads average difference: %23.16lf.\n", averageDifference);
+        normal = sqrt (normal);
+        printf ("MinQuads normal (quadric): %23.16lf.\n", normal);
 
-        minquadsTotalMaxDiff = m_max (minquadsTotalMaxDiff, maxDifference);
-        minquadsTotalMinDiff = m_min (minquadsTotalMaxDiff, minDifference);
-        minquadsTotalAverageDiff += averageDifference / RUN_COUNT;
+        minquadsTotalMaxNormal = fmax (minquadsTotalMaxNormal, normal);
+        minquadsTotalMinNormal = fmin (minquadsTotalMinNormal, normal);
+        minquadsTotalAverageNormal += normal / RUN_COUNT;
     }
 
     FreeMatrix (copyA, MATRIX_SIZE, MATRIX_SIZE);
     FreeMatrix (copyB, MATRIX_SIZE, 1);
 }
 
-void FindGMRESSolutionAndPrintDiff (double **A, double **B, double **X)
+void FindGMRESSolutionAndPrintNormal (double **A, double **B, double **X)
 {
     double **copyA = CopyMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
     double **copyB = CopyMatrix (B, MATRIX_SIZE, 1);
@@ -373,25 +343,20 @@ void FindGMRESSolutionAndPrintDiff (double **A, double **B, double **X)
     else
     {
         totalGMRES += clock () - begin;
-        double maxDifference = 0.0;
-        double minDifference = INFINITY;
-        double averageDifference = 0.0;
+        double normal = 0.0;
 
         for (int index = 0; index < MATRIX_SIZE; ++index)
         {
-            double currentDiff = m_abs (builtX[index][0] - X[index][0]);
-            maxDifference = m_max (maxDifference, currentDiff);
-            minDifference = m_min (m_abs (minDifference), m_abs (currentDiff));
-            averageDifference += currentDiff / MATRIX_SIZE;
+            double currentNormal = fabs (builtX[index][0] - X[index][0]);
+            normal += currentNormal * currentNormal;
         }
 
-        printf ("GMRES max difference: %23.16lf.\n", maxDifference);
-        printf ("GMRES min difference: %23.16lf.\n", minDifference);
-        printf ("GMRES average difference: %23.16lf.\n", averageDifference);
+        normal = sqrt (normal);
+        printf ("GMRES normal (quadric): %23.16lf.\n", normal);
 
-        gmresTotalMaxDiff = m_max (gmresTotalMaxDiff, maxDifference);
-        gmresTotalMinDiff = m_min (gmresTotalMaxDiff, minDifference);
-        gmresTotalAverageDiff += averageDifference / RUN_COUNT;
+        gmresTotalMaxNormal = fmax (gmresTotalMaxNormal, normal);
+        gmresTotalMinNormal = fmin (gmresTotalMinNormal, normal);
+        gmresTotalAverageNormal += normal / RUN_COUNT;
     }
 
     FreeMatrix (copyA, MATRIX_SIZE, MATRIX_SIZE);
@@ -410,13 +375,13 @@ void MainCycle ()
     MultiplyMatrices (A, X, B, MATRIX_SIZE, MATRIX_SIZE, 1);
 
     CalculateConditionNumber (A);
-    FindGaussSolutionAndPrintDiff (A, B, X);
-    FindLUPSolutionAndPrintDiff (A, B, X);
-    FindCholeskySolutionAndPrintDiff (A, B, X);
-    FindRelaxationSolutionAndPrintDiff (A, B, X);
-    FindHouseholderSolutionAndPrintDiff (A, B, X);
-    FindMinQuadsSolutionAndPrintDiff (A, B, X);
-    FindGMRESSolutionAndPrintDiff (A, B, X);
+    FindGaussSolutionAndPrintNormal (A, B, X);
+    FindLUPSolutionAndPrintNormal (A, B, X);
+    FindCholeskySolutionAndPrintNormal (A, B, X);
+    FindRelaxationSolutionAndPrintNormal (A, B, X);
+    FindHouseholderSolutionAndPrintNormal (A, B, X);
+    FindMinQuadsSolutionAndPrintNormal (A, B, X);
+    FindGMRESSolutionAndPrintNormal (A, B, X);
 
     FreeMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
     FreeMatrix (X, MATRIX_SIZE, 1);
@@ -443,9 +408,9 @@ int main ()
     printf ("## 2\nAverage A^-1 calculation time: %dms.\n\n",
             (int) round (totalGaussJordan * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
 
-    printf ("## 3\nGauss max difference: %23.16lf.\n", gaussTotalMaxDiff);
-    printf ("Gauss min difference: %23.16lf.\n", gaussTotalMinDiff);
-    printf ("Gauss average difference: %23.16lf.\n\n", gaussTotalAverageDiff);
+    printf ("## 3\nGauss max normal (quadric): %23.16lf.\n", gaussTotalMaxNormal);
+    printf ("Gauss min normal (quadric): %23.16lf.\n", gaussTotalMinNormal);
+    printf ("Gauss average normal (quadric): %23.16lf.\n\n", gaussTotalAverageNormal);
 
     printf ("## 4\nAverage gauss elimination time: %dms.\n\n",
             (int) round (totalGauss * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
@@ -453,44 +418,44 @@ int main ()
     printf ("## 5\nAverage LUP build time: %dms.\n\n",
             (int) round (totalLUPBuild * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
 
-    printf ("## 6\nLUP max difference: %23.16lf.\n", lupTotalMaxDiff);
-    printf ("LUP min difference: %23.16lf.\n", lupTotalMinDiff);
-    printf ("LUP average difference: %23.16lf.\n\n", lupTotalAverageDiff);
+    printf ("## 6\nLUP max normal (quadric): %23.16lf.\n", lupTotalMaxNormal);
+    printf ("LUP min normal (quadric): %23.16lf.\n", lupTotalMinNormal);
+    printf ("LUP average normal (quadric): %23.16lf.\n\n", lupTotalAverageNormal);
 
     printf ("## 7\nAverage LUP solve time: %dms.\n\n",
             (int) round (totalLUPSolve * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
 
-    printf ("## 8\nCholesky max difference: %23.16lf.\n", choleskyTotalMaxDiff);
-    printf ("Cholesky min difference: %23.16lf.\n", choleskyTotalMinDiff);
-    printf ("Cholesky average difference: %23.16lf.\n\n", choleskyTotalAverageDiff);
+    printf ("## 8\nCholesky max normal (quadric): %23.16lf.\n", choleskyTotalMaxNormal);
+    printf ("Cholesky min normal (quadric): %23.16lf.\n", choleskyTotalMinNormal);
+    printf ("Cholesky average normal (quadric): %23.16lf.\n\n", choleskyTotalAverageNormal);
 
     printf ("## 9\nAverage Cholesky solve time: %dms.\n\n",
             (int) round (totalCholeskySolve * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
 
-    printf ("## 10\nRelaxation max difference: %23.16lf.\n", relaxationTotalMaxDiff);
-    printf ("Relaxation min difference: %23.16lf.\n", relaxationTotalMinDiff);
-    printf ("Relaxation average difference: %23.16lf.\n\n", relaxationTotalAverageDiff);
+    printf ("## 10\nRelaxation max normal (quadric): %23.16lf.\n", relaxationTotalMaxNormal);
+    printf ("Relaxation min normal (quadric): %23.16lf.\n", relaxationTotalMinNormal);
+    printf ("Relaxation average normal (quadric): %23.16lf.\n\n", relaxationTotalAverageNormal);
 
     printf ("## 11\nAverage relaxation elimination time: %dms.\n\n",
             (int) round (totalRelaxation * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
 
-    printf ("## 12\nHouseholder max difference: %23.16lf.\n", householderTotalMaxDiff);
-    printf ("Householder min difference: %23.16lf.\n", householderTotalMinDiff);
-    printf ("Householder average difference: %23.16lf.\n\n", householderTotalAverageDiff);
+    printf ("## 12\nHouseholder max normal (quadric): %23.16lf.\n", householderTotalMaxNormal);
+    printf ("Householder min normal (quadric): %23.16lf.\n", householderTotalMinNormal);
+    printf ("Householder average normal (quadric): %23.16lf.\n\n", householderTotalAverageNormal);
 
     printf ("## 13\nAverage householder elimination time: %dms.\n\n",
             (int) round (totalHouseholder * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
 
-    printf ("## 14\nMinQuads max difference: %23.16lf.\n", minquadsTotalMaxDiff);
-    printf ("MinQuads min difference: %23.16lf.\n", minquadsTotalMinDiff);
-    printf ("MinQuads average difference: %23.16lf.\n\n", minquadsTotalAverageDiff);
+    printf ("## 14\nMinQuads max normal (quadric): %23.16lf.\n", minquadsTotalMaxNormal);
+    printf ("MinQuads min normal (quadric): %23.16lf.\n", minquadsTotalMinNormal);
+    printf ("MinQuads average normal (quadric): %23.16lf.\n\n", minquadsTotalAverageNormal);
 
     printf ("## 15\nAverage minquads elimination time: %dms.\n\n",
             (int) round (totalMinQuads * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
     
-    printf ("## 16\nGMRES max difference: %23.16lf.\n", gmresTotalMaxDiff);
-    printf ("GMRES min difference: %23.16lf.\n", gmresTotalMinDiff);
-    printf ("GMRES average difference: %23.16lf.\n\n", gmresTotalAverageDiff);
+    printf ("## 16\nGMRES max normal (quadric): %23.16lf.\n", gmresTotalMaxNormal);
+    printf ("GMRES min normal (quadric): %23.16lf.\n", gmresTotalMinNormal);
+    printf ("GMRES average normal (quadric): %23.16lf.\n\n", gmresTotalAverageNormal);
 
     printf ("## 17\nAverage gmres elimination time: %dms.\n\n",
             (int) round (totalGMRES * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
