@@ -49,13 +49,21 @@ double **CopyMatrix (double **matrix, int rows, int cols)
     for (int row = 0; row < rows; ++row)
     {
         copy[row] = calloc (cols, sizeof (double));
-        for (int col = 0; col < cols; ++col)
-        {
-            copy[row][col] = matrix[row][col];
-        }
     }
 
+    CopyMatrixInto (matrix, rows, cols, copy);
     return copy;
+}
+
+void CopyMatrixInto (double **matrix, int rows, int cols, double **output)
+{
+    for (int row = 0; row < rows; ++row)
+    {
+        for (int col = 0; col < cols; ++col)
+        {
+            output[row][col] = matrix[row][col];
+        }
+    }
 }
 
 double **TransformMatrixByRowOrder (double **matrix, int rows, int cols, int *rowOrder)

@@ -11,6 +11,7 @@
 #include "relaxation.h"
 #include "householder.h"
 #include "minquads.h"
+#include "gmres.h"
 
 #define RUN_COUNT 100
 extern MTRand *GlobalRand;
@@ -57,6 +58,12 @@ double minquadsTotalMinDiff = INFINITY;
 double minquadsTotalAverageDiff = 0.0;
 
 clock_t totalMinQuads = 0;
+
+double gmresTotalMaxDiff = 0.0;
+double gmresTotalMinDiff = INFINITY;
+double gmresTotalAverageDiff = 0.0;
+
+clock_t totalGMRES = 0;
 
 void CalculateConditionNumber (double **A)
 {
@@ -352,6 +359,44 @@ void FindMinQuadsSolutionAndPrintDiff (double **A, double **B, double **X)
     FreeMatrix (copyB, MATRIX_SIZE, 1);
 }
 
+void FindGMRESSolutionAndPrintDiff (double **A, double **B, double **X)
+{
+    double **copyA = CopyMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
+    double **copyB = CopyMatrix (B, MATRIX_SIZE, 1);
+    double **builtX;
+    clock_t begin = clock ();
+
+    if (!SolveGMRES (copyA, MATRIX_SIZE, copyB, &builtX))
+    {
+        printf ("Unable to solve system!\n");
+    }
+    else
+    {
+        totalGMRES += clock () - begin;
+        double maxDifference = 0.0;
+        double minDifference = INFINITY;
+        double averageDifference = 0.0;
+
+        for (int index = 0; index < MATRIX_SIZE; ++index)
+        {
+            double currentDiff = m_abs (builtX[index][0] - X[index][0]);
+            maxDifference = m_max (maxDifference, currentDiff);
+            minDifference = m_min (m_abs (minDifference), m_abs (currentDiff));
+            averageDifference += currentDiff / MATRIX_SIZE;
+        }
+
+        printf ("GMRES max difference: %23.16lf.\n", maxDifference);
+        printf ("GMRES min difference: %23.16lf.\n", minDifference);
+        printf ("GMRES average difference: %23.16lf.\n", averageDifference);
+
+        gmresTotalMaxDiff = m_max (gmresTotalMaxDiff, maxDifference);
+        gmresTotalMinDiff = m_min (gmresTotalMaxDiff, minDifference);
+        gmresTotalAverageDiff += averageDifference / RUN_COUNT;
+    }
+
+    FreeMatrix (copyA, MATRIX_SIZE, MATRIX_SIZE);
+    FreeMatrix (copyB, MATRIX_SIZE, 1);
+}
 
 void MainCycle ()
 {
@@ -371,6 +416,7 @@ void MainCycle ()
     FindRelaxationSolutionAndPrintDiff (A, B, X);
     FindHouseholderSolutionAndPrintDiff (A, B, X);
     FindMinQuadsSolutionAndPrintDiff (A, B, X);
+    FindGMRESSolutionAndPrintDiff (A, B, X);
 
     FreeMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
     FreeMatrix (X, MATRIX_SIZE, 1);
@@ -441,6 +487,13 @@ int main ()
 
     printf ("## 15\nAverage minquads elimination time: %dms.\n\n",
             (int) round (totalMinQuads * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
+    
+    printf ("## 16\nGMRES max difference: %23.16lf.\n", gmresTotalMaxDiff);
+    printf ("GMRES min difference: %23.16lf.\n", gmresTotalMinDiff);
+    printf ("GMRES average difference: %23.16lf.\n\n", gmresTotalAverageDiff);
+
+    printf ("## 17\nAverage gmres elimination time: %dms.\n\n",
+            (int) round (totalGMRES * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
     
     free (GlobalRand);
     return 0;
