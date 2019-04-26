@@ -6,13 +6,13 @@
 #include <stdio.h>
 #include <math.h>
 
-#define EPSILON 0.00001
+#define EPSILON 0.0001
 bool SolveGMRES (double **A, int matrixSize, double **B, double ***X)
 {
     double **K = AllocateMatrix (matrixSize, matrixSize);
     double **AK = AllocateMatrix (matrixSize, matrixSize);
     double **C;
-    double **previousX = AllocateMatrix (matrixSize, 1);
+    double **sample = AllocateMatrix (matrixSize, 1);
     *X = AllocateMatrix (matrixSize, 1);
 
     bool solved = false;
@@ -48,29 +48,27 @@ bool SolveGMRES (double **A, int matrixSize, double **B, double ***X)
 
         SolveMinQuads (AK, matrixSize, iteration + 1, B, 1, &C);
         MultiplyMatrices (K, C, *X, matrixSize, iteration + 1, 1);
+        MultiplyMatrices (A, *X, sample, matrixSize, matrixSize, 1);
 
-        // TODO: Check diff AX and B instead.
-        if (iteration > 0)
+
+        double normal = 0.0;
+        for (int row = 0; row < matrixSize; ++row)
         {
-            double diff = 0.0;
-            for (int row = 0; row < matrixSize; ++row)
-            {
-                diff = fmax (diff, fabs (previousX[row][0] - (*X)[row][0]));
-            }
-
-            if (diff < EPSILON)
-            {
-                solved = true;
-            }
+            normal = pow (sample[row][0] - B[row][0], 2.0);
         }
 
-        CopyMatrixInto (*X, matrixSize, 1, previousX);
+        normal = sqrt (normal);
+        if (normal < EPSILON)
+        {
+            solved = true;
+        }
+
         FreeMatrix (C, iteration + 1, 1);
         ++iteration;
     }
 
     FreeMatrix (K, matrixSize, matrixSize);
     FreeMatrix (AK, matrixSize, matrixSize);
-    FreeMatrix (previousX, matrixSize, 1);
+    FreeMatrix (sample, matrixSize, 1);
     return solved;
 }

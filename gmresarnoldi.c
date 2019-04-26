@@ -6,14 +6,14 @@
 #include <stdio.h>
 #include <math.h>
 
-#define EPSILON 0.00001
+#define EPSILON 0.0001
 bool SolveGMRESArnoldi (double **A, int matrixSize, double **B, double ***X)
 {
     double **Q = AllocateMatrix (matrixSize, matrixSize);
     double **H = AllocateMatrix (matrixSize, matrixSize);
     double **minquadsB = AllocateMatrix (matrixSize, 1);
     double **C;
-    double **previousX = AllocateMatrix (matrixSize, 1);
+    double **sample = AllocateMatrix (matrixSize, 1);
     *X = AllocateMatrix (matrixSize, 1);
     bool solved = false;
 
@@ -67,24 +67,21 @@ bool SolveGMRESArnoldi (double **A, int matrixSize, double **B, double ***X)
 
         SolveMinQuads (H, iteration + 1, iteration, minquadsB, 1, &C);
         MultiplyMatrices (Q, C, *X, matrixSize, iteration, 1);
+        MultiplyMatrices (A, *X, sample, matrixSize, matrixSize, 1);
 
-        if (iteration > 1)
+        double normal = 0.0;
+        for (int row = 0; row < matrixSize; ++row)
         {
-            double diff = 0.0;
-            for (int row = 0; row < matrixSize; ++row)
-            {
-                diff = fmax (diff, fabs (previousX[row][0] - (*X)[row][0]));
-            }
-
-            if (diff < EPSILON)
-            {
-                solved = true;
-            }
+            normal = pow (sample[row][0] - B[row][0], 2.0);
         }
 
-        CopyMatrixInto (*X, matrixSize, 1, previousX);
-        FreeMatrix (C, iteration, 1);
+        normal = sqrt (normal);
+        if (normal < EPSILON)
+        {
+            solved = true;
+        }
 
+        FreeMatrix (C, iteration, 1);
         if (solved)
         {
             break;
@@ -93,6 +90,6 @@ bool SolveGMRESArnoldi (double **A, int matrixSize, double **B, double ***X)
 
     FreeMatrix (Q, matrixSize, matrixSize);
     FreeMatrix (H, matrixSize, matrixSize);
-    FreeMatrix (previousX, matrixSize, 1);
+    FreeMatrix (sample, matrixSize, 1);
     return solved;
 }
