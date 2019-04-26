@@ -11,4 +11,6 @@ add_executable(Lab1 main.c def.h
         cholesky.c cholesky.h
         relaxation.c relaxation.h
         householder.c householder.h
-        minquads.c minquads.h gmres.c gmres.h)
+        minquads.c minquads.h
+        gmres.c gmres.h
+        gmresarnoldi.c gmresarnoldi.h)

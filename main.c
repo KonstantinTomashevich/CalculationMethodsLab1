@@ -12,6 +12,7 @@
 #include "householder.h"
 #include "minquads.h"
 #include "gmres.h"
+#include "gmresarnoldi.h"
 
 #define RUN_COUNT 100
 extern MTRand *GlobalRand;
@@ -64,6 +65,12 @@ double gmresTotalMinNormal = INFINITY;
 double gmresTotalAverageNormal = 0.0;
 
 clock_t totalGMRES = 0;
+
+double gmresArnoldiTotalMaxNormal = 0.0;
+double gmresArnoldiTotalMinNormal = INFINITY;
+double gmresArnoldiTotalAverageNormal = 0.0;
+
+clock_t totalGMRESArnoldi = 0;
 
 void CalculateConditionNumber (double **A)
 {
@@ -363,6 +370,40 @@ void FindGMRESSolutionAndPrintNormal (double **A, double **B, double **X)
     FreeMatrix (copyB, MATRIX_SIZE, 1);
 }
 
+void FindGMRESArnoldiSolutionAndPrintNormal (double **A, double **B, double **X)
+{
+    double **copyA = CopyMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
+    double **copyB = CopyMatrix (B, MATRIX_SIZE, 1);
+    double **builtX;
+    clock_t begin = clock ();
+
+    if (!SolveGMRESArnoldi (copyA, MATRIX_SIZE, copyB, &builtX))
+    {
+        printf ("Unable to solve system!\n");
+    }
+    else
+    {
+        totalGMRESArnoldi += clock () - begin;
+        double normal = 0.0;
+
+        for (int index = 0; index < MATRIX_SIZE; ++index)
+        {
+            double currentNormal = fabs (builtX[index][0] - X[index][0]);
+            normal += currentNormal * currentNormal;
+        }
+
+        normal = sqrt (normal);
+        printf ("GMRESArnoldi normal (quadric): %23.16lf.\n", normal);
+
+        gmresArnoldiTotalMaxNormal = fmax (gmresArnoldiTotalMaxNormal, normal);
+        gmresArnoldiTotalMinNormal = fmin (gmresArnoldiTotalMinNormal, normal);
+        gmresArnoldiTotalAverageNormal += normal / RUN_COUNT;
+    }
+
+    FreeMatrix (copyA, MATRIX_SIZE, MATRIX_SIZE);
+    FreeMatrix (copyB, MATRIX_SIZE, 1);
+}
+
 void MainCycle ()
 {
     double **A = AllocateMatrix (MATRIX_SIZE, MATRIX_SIZE);
@@ -382,6 +423,7 @@ void MainCycle ()
     FindHouseholderSolutionAndPrintNormal (A, B, X);
     FindMinQuadsSolutionAndPrintNormal (A, B, X);
     FindGMRESSolutionAndPrintNormal (A, B, X);
+    FindGMRESArnoldiSolutionAndPrintNormal (A, B, X);
 
     FreeMatrix (A, MATRIX_SIZE, MATRIX_SIZE);
     FreeMatrix (X, MATRIX_SIZE, 1);
@@ -459,6 +501,13 @@ int main ()
 
     printf ("## 17\nAverage gmres elimination time: %dms.\n\n",
             (int) round (totalGMRES * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
+
+    printf ("## 18\nGMRESArnoldi max normal (quadric): %23.16lf.\n", gmresArnoldiTotalMaxNormal);
+    printf ("GMRESArnoldi min normal (quadric): %23.16lf.\n", gmresArnoldiTotalMinNormal);
+    printf ("GMRESArnoldi average normal (quadric): %23.16lf.\n\n", gmresArnoldiTotalAverageNormal);
+
+    printf ("## 19\nAverage gmres arnoldi elimination time: %dms.\n\n",
+            (int) round (totalGMRESArnoldi * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
     
     free (GlobalRand);
     return 0;
