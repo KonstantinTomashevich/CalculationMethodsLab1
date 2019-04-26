@@ -10,6 +10,9 @@ double **TransformMatrixByColOrder (double **matrix, int rows, int cols, int *co
 double **TransposeMatrix (double **matrix, int rows, int cols);
 void FreeMatrix (double **matrix, int rows, int cols);
 
+double ColumnQuadricNormal (double **matrix, int rows, int colIndex);
+double ColumnsScalarMultiplication (double **matrix, int rows, int col1Index, int col2Index);
+
 void FillTaskSpecificMatrix (double **matrix);
 void FillDefaultMatrix (double **matrix, int rows, int cols);
 void PrintMatrix (double **matrix, int rows, int cols);

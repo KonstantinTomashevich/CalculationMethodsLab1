@@ -118,6 +118,28 @@ void FreeMatrix (double **matrix, int rows, int cols)
     free (matrix);
 }
 
+double ColumnQuadricNormal (double **matrix, int rows, int colIndex)
+{
+    double result = 0.0;
+    for (int row = 0; row < rows; ++row)
+    {
+        result += matrix[row][colIndex] * matrix[row][colIndex];
+    }
+
+    return sqrt (result);
+}
+
+double ColumnsScalarMultiplication (double **matrix, int rows, int col1Index, int col2Index)
+{
+    double result = 0.0;
+    for (int row = 0; row < rows; ++row)
+    {
+        result += matrix[row][col1Index] * matrix[row][col2Index];
+    }
+
+    return result;
+}
+
 void FillTaskSpecificMatrix (double **matrix)
 {
     for (int col = 1; col < MATRIX_SIZE; ++col)
