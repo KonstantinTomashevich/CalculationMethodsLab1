@@ -18,7 +18,7 @@ bool SolveGMRES (double **A, int matrixSize, double **B, double ***X)
     bool solved = false;
     int iteration = 0;
 
-    while (iteration < matrixSize && !solved)
+    while (iteration < matrixSize - 2 && !solved)
     {
         if (iteration == 0)
         {
@@ -49,6 +49,7 @@ bool SolveGMRES (double **A, int matrixSize, double **B, double ***X)
         SolveMinQuads (AK, matrixSize, iteration + 1, B, 1, &C);
         MultiplyMatrices (K, C, *X, matrixSize, iteration + 1, 1);
 
+        // TODO: Check diff AX and B instead.
         if (iteration > 0)
         {
             double diff = 0.0;
@@ -64,6 +65,7 @@ bool SolveGMRES (double **A, int matrixSize, double **B, double ***X)
         }
 
         CopyMatrixInto (*X, matrixSize, 1, previousX);
+        FreeMatrix (C, iteration + 1, 1);
         ++iteration;
     }
 
