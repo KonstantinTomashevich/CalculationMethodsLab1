@@ -1,76 +1,76 @@
 
 ### Report ###
 ## 1
-Max condition number:      4.9973427950896010.
-Min condition number:      4.5600691315216659.
-Average matrix element:      1.9938667611802330.
+Max condition number:      4.9973427950896072.
+Min condition number:      4.5600691315216730.
+Average matrix element:      1.6766354119699938.
 
 ## 2
-Average A^-1 calculation time: 138ms.
+Average A^-1 calculation time: 145ms.
 
 ## 3
-Gauss max normal (quadric):      0.0000000000000419.
-Gauss min normal (quadric):      0.0000000000000315.
-Gauss average normal (quadric):      0.0000000000000364.
+Gauss max normal (quadric):      0.0000000000000396.
+Gauss min normal (quadric):      0.0000000000000301.
+Gauss average normal (quadric):      0.0000000000000336.
 
 ## 4
-Average gauss elimination time: 39ms.
+Average gauss elimination time: 40ms.
 
 ## 5
-Average LUP build time: 38ms.
+Average LUP build time: 39ms.
 
 ## 6
-LUP max normal (quadric):      0.0000000000000419.
-LUP min normal (quadric):      0.0000000000000315.
-LUP average normal (quadric):      0.0000000000000364.
+LUP max normal (quadric):      0.0000000000000396.
+LUP min normal (quadric):      0.0000000000000301.
+LUP average normal (quadric):      0.0000000000000336.
 
 ## 7
 Average LUP solve time: 1ms.
 
 ## 8
-Cholesky max normal (quadric):      0.0000000000000476.
-Cholesky min normal (quadric):      0.0000000000000336.
-Cholesky average normal (quadric):      0.0000000000000399.
+Cholesky max normal (quadric):      0.0000000000000397.
+Cholesky min normal (quadric):      0.0000000000000286.
+Cholesky average normal (quadric):      0.0000000000000331.
 
 ## 9
 Average Cholesky solve time: 25ms.
 
 ## 10
-Relaxation max normal (quadric):      0.0000000000000254.
-Relaxation min normal (quadric):      0.0000000000000177.
-Relaxation average normal (quadric):      0.0000000000000215.
+Relaxation max normal (quadric):      0.0000000000000216.
+Relaxation min normal (quadric):      0.0000000000000154.
+Relaxation average normal (quadric):      0.0000000000000185.
 
 ## 11
-Average relaxation elimination time: 14ms.
+Average relaxation elimination time: 9ms.
 
 ## 12
-Householder max normal (quadric):      0.0000000000010696.
-Householder min normal (quadric):      0.0000000000000686.
-Householder average normal (quadric):      0.0000000000001126.
+Householder max normal (quadric):      0.0000000000002913.
+Householder min normal (quadric):      0.0000000000000688.
+Householder average normal (quadric):      0.0000000000000939.
 
 ## 13
-Average householder elimination time: 46ms.
+Average householder elimination time: 48ms.
 
 ## 14
-MinQuads max normal (quadric):      2.9655286633869555.
-MinQuads min normal (quadric):      2.1106063863956694.
-MinQuads average normal (quadric):      2.6181702158106805.
+MinQuads max normal (quadric):      2.5890708815126460.
+MinQuads min normal (quadric):      1.8309969488103850.
+MinQuads average normal (quadric):      2.2629771119112743.
 
 ## 15
-Average minquads elimination time: 38ms.
+Average minquads elimination time: 26ms.
 
 ## 16
-GMRES max normal (quadric):      0.0040117295642247.
-GMRES min normal (quadric):      0.0000027435210853.
-GMRES average normal (quadric):      0.0001443748083622.
+GMRES max normal (quadric):      0.0155222659842007.
+GMRES min normal (quadric):      0.0000020712457834.
+GMRES average normal (quadric):      0.0001885875940594.
 
 ## 17
-Average gmres elimination time: 6ms.
+Average gmres elimination time: 3ms.
 
 ## 18
-GMRESArnoldi max normal (quadric):      0.0001883584713212.
-GMRESArnoldi min normal (quadric):      0.0000008754683320.
-GMRESArnoldi average normal (quadric):      0.0000315387724551.
+GMRESArnoldi max normal (quadric):      0.0155222659971557.
+GMRESArnoldi min normal (quadric):      0.0000007539976207.
+GMRESArnoldi average normal (quadric):      0.0001882578545371.
 
 ## 19
 Average gmres arnoldi elimination time: 3ms.
