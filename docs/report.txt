@@ -1,0 +1,77 @@
+
+### Report ###
+## 1
+Max condition number:      1.2943838260147105.
+Min condition number:      1.1962797169341084.
+Average matrix element:      0.9968749339080899.
+
+## 2
+Average A^-1 calculation time: 145ms.
+
+## 3
+Gauss max normal (quadric):      0.0000000000000229.
+Gauss min normal (quadric):      0.0000000000000155.
+Gauss average normal (quadric):      0.0000000000000184.
+
+## 4
+Average gauss elimination time: 52ms.
+
+## 5
+Average LUP build time: 39ms.
+
+## 6
+LUP max normal (quadric):      0.0000000000000229.
+LUP min normal (quadric):      0.0000000000000155.
+LUP average normal (quadric):      0.0000000000000184.
+
+## 7
+Average LUP solve time: 1ms.
+
+## 8
+Cholesky max normal (quadric):      0.0000000000000225.
+Cholesky min normal (quadric):      0.0000000000000167.
+Cholesky average normal (quadric):      0.0000000000000194.
+
+## 9
+Average Cholesky solve time: 37ms.
+
+## 10
+Relaxation max normal (quadric):      0.0000000000000164.
+Relaxation min normal (quadric):      0.0000000000000078.
+Relaxation average normal (quadric):      0.0000000000000101.
+
+## 11
+Average relaxation elimination time: 6ms.
+
+## 12
+Householder max normal (quadric):      0.0000000000001969.
+Householder min normal (quadric):      0.0000000000000387.
+Householder average normal (quadric):      0.0000000000000536.
+
+## 13
+Average householder elimination time: 48ms.
+
+## 14
+MinQuads max normal (quadric):      1.4913632034996289.
+MinQuads min normal (quadric):      1.0163047564515881.
+MinQuads average normal (quadric):      1.2388846343365678.
+
+## 15
+Average minquads elimination time: 8ms.
+
+## 16
+GMRES max normal (quadric):      0.0012164724268577.
+GMRES min normal (quadric):      0.0000015247635240.
+GMRES average normal (quadric):      0.0000335028641655.
+
+## 17
+Average gmres elimination time: 7ms.
+
+## 18
+GMRESArnoldi max normal (quadric):      0.0000774655461063.
+GMRESArnoldi min normal (quadric):      0.0000003663860892.
+GMRESArnoldi average normal (quadric):      0.0000093995631293.
+
+## 19
+Average gmres arnoldi elimination time: 4ms.
+

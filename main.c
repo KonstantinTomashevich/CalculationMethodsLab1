@@ -430,6 +430,76 @@ void MainCycle ()
     FreeMatrix (B, MATRIX_SIZE, 1);
 }
 
+void PrintReport (FILE *output)
+{
+    fprintf (output, "\n### Report ###\n");
+    fprintf (output, "## 1\nMax condition number: %23.16lf.\n", maxConditionNumber);
+    fprintf (output, "Min condition number: %23.16lf.\n", minConditionNumber);
+    fprintf (output, "Average matrix element: %23.16lf.\n\n", averageMatrixElement);
+
+    fprintf (output, "## 2\nAverage A^-1 calculation time: %dms.\n\n",
+            (int) round (totalGaussJordan * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
+
+    fprintf (output, "## 3\nGauss max normal (quadric): %23.16lf.\n", gaussTotalMaxNormal);
+    fprintf (output, "Gauss min normal (quadric): %23.16lf.\n", gaussTotalMinNormal);
+    fprintf (output, "Gauss average normal (quadric): %23.16lf.\n\n", gaussTotalAverageNormal);
+
+    fprintf (output, "## 4\nAverage gauss elimination time: %dms.\n\n",
+            (int) round (totalGauss * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
+
+    fprintf (output, "## 5\nAverage LUP build time: %dms.\n\n",
+            (int) round (totalLUPBuild * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
+
+    fprintf (output, "## 6\nLUP max normal (quadric): %23.16lf.\n", lupTotalMaxNormal);
+    fprintf (output, "LUP min normal (quadric): %23.16lf.\n", lupTotalMinNormal);
+    fprintf (output, "LUP average normal (quadric): %23.16lf.\n\n", lupTotalAverageNormal);
+
+    fprintf (output, "## 7\nAverage LUP solve time: %dms.\n\n",
+            (int) round (totalLUPSolve * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
+
+    fprintf (output, "## 8\nCholesky max normal (quadric): %23.16lf.\n", choleskyTotalMaxNormal);
+    fprintf (output, "Cholesky min normal (quadric): %23.16lf.\n", choleskyTotalMinNormal);
+    fprintf (output, "Cholesky average normal (quadric): %23.16lf.\n\n", choleskyTotalAverageNormal);
+
+    fprintf (output, "## 9\nAverage Cholesky solve time: %dms.\n\n",
+            (int) round (totalCholeskySolve * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
+
+    fprintf (output, "## 10\nRelaxation max normal (quadric): %23.16lf.\n", relaxationTotalMaxNormal);
+    fprintf (output, "Relaxation min normal (quadric): %23.16lf.\n", relaxationTotalMinNormal);
+    fprintf (output, "Relaxation average normal (quadric): %23.16lf.\n\n", relaxationTotalAverageNormal);
+
+    fprintf (output, "## 11\nAverage relaxation elimination time: %dms.\n\n",
+            (int) round (totalRelaxation * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
+
+    fprintf (output, "## 12\nHouseholder max normal (quadric): %23.16lf.\n", householderTotalMaxNormal);
+    fprintf (output, "Householder min normal (quadric): %23.16lf.\n", householderTotalMinNormal);
+    fprintf (output, "Householder average normal (quadric): %23.16lf.\n\n", householderTotalAverageNormal);
+
+    fprintf (output, "## 13\nAverage householder elimination time: %dms.\n\n",
+            (int) round (totalHouseholder * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
+
+    fprintf (output, "## 14\nMinQuads max normal (quadric): %23.16lf.\n", minquadsTotalMaxNormal);
+    fprintf (output, "MinQuads min normal (quadric): %23.16lf.\n", minquadsTotalMinNormal);
+    fprintf (output, "MinQuads average normal (quadric): %23.16lf.\n\n", minquadsTotalAverageNormal);
+
+    fprintf (output, "## 15\nAverage minquads elimination time: %dms.\n\n",
+            (int) round (totalMinQuads * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
+
+    fprintf (output, "## 16\nGMRES max normal (quadric): %23.16lf.\n", gmresTotalMaxNormal);
+    fprintf (output, "GMRES min normal (quadric): %23.16lf.\n", gmresTotalMinNormal);
+    fprintf (output, "GMRES average normal (quadric): %23.16lf.\n\n", gmresTotalAverageNormal);
+
+    fprintf (output, "## 17\nAverage gmres elimination time: %dms.\n\n",
+            (int) round (totalGMRES * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
+
+    fprintf (output, "## 18\nGMRESArnoldi max normal (quadric): %23.16lf.\n", gmresArnoldiTotalMaxNormal);
+    fprintf (output, "GMRESArnoldi min normal (quadric): %23.16lf.\n", gmresArnoldiTotalMinNormal);
+    fprintf (output, "GMRESArnoldi average normal (quadric): %23.16lf.\n\n", gmresArnoldiTotalAverageNormal);
+
+    fprintf (output, "## 19\nAverage gmres arnoldi elimination time: %dms.\n\n",
+            (int) round (totalGMRESArnoldi * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
+}
+
 int main ()
 {
     // TODO: After finishing all algos, speed up them by addition of "start from row/col" parameter to util functions.
@@ -442,73 +512,11 @@ int main ()
         MainCycle ();
     }
 
-    printf ("\n### Report ###\n");
-    printf ("## 1\nMax condition number: %23.16lf.\n", maxConditionNumber);
-    printf ("Min condition number: %23.16lf.\n", minConditionNumber);
-    printf ("Average matrix element: %23.16lf.\n\n", averageMatrixElement);
+    PrintReport (stdout);
+    FILE *report = fopen ("report.txt", "w");
+    PrintReport (report);
+    fclose (report);
 
-    printf ("## 2\nAverage A^-1 calculation time: %dms.\n\n",
-            (int) round (totalGaussJordan * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
-
-    printf ("## 3\nGauss max normal (quadric): %23.16lf.\n", gaussTotalMaxNormal);
-    printf ("Gauss min normal (quadric): %23.16lf.\n", gaussTotalMinNormal);
-    printf ("Gauss average normal (quadric): %23.16lf.\n\n", gaussTotalAverageNormal);
-
-    printf ("## 4\nAverage gauss elimination time: %dms.\n\n",
-            (int) round (totalGauss * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
-
-    printf ("## 5\nAverage LUP build time: %dms.\n\n",
-            (int) round (totalLUPBuild * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
-
-    printf ("## 6\nLUP max normal (quadric): %23.16lf.\n", lupTotalMaxNormal);
-    printf ("LUP min normal (quadric): %23.16lf.\n", lupTotalMinNormal);
-    printf ("LUP average normal (quadric): %23.16lf.\n\n", lupTotalAverageNormal);
-
-    printf ("## 7\nAverage LUP solve time: %dms.\n\n",
-            (int) round (totalLUPSolve * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
-
-    printf ("## 8\nCholesky max normal (quadric): %23.16lf.\n", choleskyTotalMaxNormal);
-    printf ("Cholesky min normal (quadric): %23.16lf.\n", choleskyTotalMinNormal);
-    printf ("Cholesky average normal (quadric): %23.16lf.\n\n", choleskyTotalAverageNormal);
-
-    printf ("## 9\nAverage Cholesky solve time: %dms.\n\n",
-            (int) round (totalCholeskySolve * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
-
-    printf ("## 10\nRelaxation max normal (quadric): %23.16lf.\n", relaxationTotalMaxNormal);
-    printf ("Relaxation min normal (quadric): %23.16lf.\n", relaxationTotalMinNormal);
-    printf ("Relaxation average normal (quadric): %23.16lf.\n\n", relaxationTotalAverageNormal);
-
-    printf ("## 11\nAverage relaxation elimination time: %dms.\n\n",
-            (int) round (totalRelaxation * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
-
-    printf ("## 12\nHouseholder max normal (quadric): %23.16lf.\n", householderTotalMaxNormal);
-    printf ("Householder min normal (quadric): %23.16lf.\n", householderTotalMinNormal);
-    printf ("Householder average normal (quadric): %23.16lf.\n\n", householderTotalAverageNormal);
-
-    printf ("## 13\nAverage householder elimination time: %dms.\n\n",
-            (int) round (totalHouseholder * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
-
-    printf ("## 14\nMinQuads max normal (quadric): %23.16lf.\n", minquadsTotalMaxNormal);
-    printf ("MinQuads min normal (quadric): %23.16lf.\n", minquadsTotalMinNormal);
-    printf ("MinQuads average normal (quadric): %23.16lf.\n\n", minquadsTotalAverageNormal);
-
-    printf ("## 15\nAverage minquads elimination time: %dms.\n\n",
-            (int) round (totalMinQuads * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
-    
-    printf ("## 16\nGMRES max normal (quadric): %23.16lf.\n", gmresTotalMaxNormal);
-    printf ("GMRES min normal (quadric): %23.16lf.\n", gmresTotalMinNormal);
-    printf ("GMRES average normal (quadric): %23.16lf.\n\n", gmresTotalAverageNormal);
-
-    printf ("## 17\nAverage gmres elimination time: %dms.\n\n",
-            (int) round (totalGMRES * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
-
-    printf ("## 18\nGMRESArnoldi max normal (quadric): %23.16lf.\n", gmresArnoldiTotalMaxNormal);
-    printf ("GMRESArnoldi min normal (quadric): %23.16lf.\n", gmresArnoldiTotalMinNormal);
-    printf ("GMRESArnoldi average normal (quadric): %23.16lf.\n\n", gmresArnoldiTotalAverageNormal);
-
-    printf ("## 19\nAverage gmres arnoldi elimination time: %dms.\n\n",
-            (int) round (totalGMRESArnoldi * 1000.0 / CLOCKS_PER_SEC / RUN_COUNT));
-    
     free (GlobalRand);
     return 0;
 }
