@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <math.h>
 
-#define EPSILON 0.001
+#define EPSILON 0.0001
 bool SolveGMRES (double **A, int matrixSize, double **B, double ***X)
 {
     double **K = AllocateMatrix (matrixSize, matrixSize);
