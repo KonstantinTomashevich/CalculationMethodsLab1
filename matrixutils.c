@@ -22,9 +22,9 @@ double RandomMatrixValue ()
     }
 
     double result = GenRand (GlobalRand) * (MaxValue - MinValue) + MinValue;
-    long long asNumber = (long long) (result * Numberer);
+    double asNumber;
 
-    if (asNumber % 10 == 0)
+    if (modf (result * Numberer, &asNumber) < 0.0001)
     {
         result += Addition;
     }
