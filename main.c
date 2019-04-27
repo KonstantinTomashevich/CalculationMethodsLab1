@@ -85,18 +85,24 @@ void CalculateConditionNumber (double **A)
     else
     {
         totalGaussJordan += clock () - begin;
-        double aMax = fabs (A[0][0]);
-        double antiAMax = fabs (antiA[0][0]);
+        double aMax = 0.0;
+        double antiAMax = 0.0;
         double average = 0.0;
 
         for (int row = 0; row < MATRIX_SIZE; ++row)
         {
+            double aSum = 0.0;
+            double antiASum = 0.0;
+
             for (int col = 0; col < MATRIX_SIZE; ++col)
             {
                 average += A[row][col] / (MATRIX_SIZE * MATRIX_SIZE);
-                aMax = fmax (aMax, fabs (A[row][col]));
-                antiAMax = fmax (antiAMax, fabs (antiA[row][col]));
+                aSum += fabs (A[row][col]);
+                antiASum += fabs (antiA[row][col]);
             }
+
+            aMax = fmax (aMax, aSum);
+            antiAMax = fmax (antiAMax, antiASum);
         }
 
         minConditionNumber = fmin (minConditionNumber, aMax * antiAMax);
@@ -504,7 +510,7 @@ int main ()
 {
     // TODO: After finishing all algos, speed up them by addition of "start from row/col" parameter to util functions.
     GlobalRand = malloc (sizeof (MTRand));
-    *GlobalRand = SeedRand (1377);
+    *GlobalRand = SeedRand (1492);
 
     for (int index = 0; index < RUN_COUNT; ++index)
     {
