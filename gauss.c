@@ -54,7 +54,7 @@ bool Gauss (double **A, double **B, int *Xi, int rows, int cols, int results)
             for (int row = step + 1; row < rows; ++row)
             {
                 double modifier = -A[row][step] / A[step][step];
-                AddMultipliedRow (A, rows, cols, row, step, modifier);
+                AddMultipliedRowPart (A, rows, cols, row, step, modifier, step);
                 AddMultipliedRow (B, rows, results, row, step, modifier);
             }
         }
@@ -79,7 +79,6 @@ bool Gauss (double **A, double **B, int *Xi, int rows, int cols, int results)
         if (A[step][step] != 0.0 && A[step][step] != -0.0)
         {
             double modifier = 1.0 / A[step][step];
-            MultiplyRow (A, rows, cols, step, modifier);
             MultiplyRow (B, rows, results, step, modifier);
         }
         else if (firstZero == -1)
