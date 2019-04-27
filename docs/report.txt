@@ -6,7 +6,7 @@ Min condition number:      4.5600691315216659.
 Average matrix element:      1.9938667611802330.
 
 ## 2
-Average A^-1 calculation time: 139ms.
+Average A^-1 calculation time: 138ms.
 
 ## 3
 Gauss max normal (quadric):      0.0000000000000419.
@@ -33,7 +33,7 @@ Cholesky min normal (quadric):      0.0000000000000336.
 Cholesky average normal (quadric):      0.0000000000000399.
 
 ## 9
-Average Cholesky solve time: 36ms.
+Average Cholesky solve time: 25ms.
 
 ## 10
 Relaxation max normal (quadric):      0.0000000000000254.
@@ -57,7 +57,7 @@ MinQuads min normal (quadric):      2.1106063863956694.
 MinQuads average normal (quadric):      2.6181702158106805.
 
 ## 15
-Average minquads elimination time: 39ms.
+Average minquads elimination time: 38ms.
 
 ## 16
 GMRES max normal (quadric):      0.0040117295642247.
