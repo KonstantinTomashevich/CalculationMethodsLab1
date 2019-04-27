@@ -510,7 +510,7 @@ int main ()
 {
     // TODO: After finishing all algos, speed up them by addition of "start from row/col" parameter to util functions.
     GlobalRand = malloc (sizeof (MTRand));
-    *GlobalRand = SeedRand (1492);
+    *GlobalRand = SeedRand (1497);
 
     for (int index = 0; index < RUN_COUNT; ++index)
     {
