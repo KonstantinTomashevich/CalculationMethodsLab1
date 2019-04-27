@@ -1,6 +1,6 @@
 #include "minquads.h"
 #include "matrixutils.h"
-#include "householder.h"
+#include "cholesky.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -10,13 +10,16 @@ bool SolveMinQuads (double **A, int rows, int cols, double **B, int results, dou
 {
     double **At = TransposeMatrix (A, rows, cols);
     double **AtxA = AllocateMatrix (cols, cols);
-    *X = AllocateMatrix (cols, results);
+    double **AtxB = AllocateMatrix (cols, results);
+    int *D = calloc (cols, sizeof (int));
 
     MultiplyMatrices (At, A, AtxA, cols, rows, cols);
-    MultiplyMatrices (At, B, *X, cols, rows, results);
-    SolveHouseholder (AtxA, cols, *X, results);
+    MultiplyMatrices (At, B, AtxB, cols, rows, results);
+    BuildCholeskyLT (AtxA, cols, D);
+    SolveCholesky (AtxA, cols, D, AtxB, results, X);
 
     FreeMatrix (At, cols, rows);
     FreeMatrix (AtxA, cols, cols);
+    free (D);
     return true;
 }
