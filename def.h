@@ -1,3 +1,3 @@
 #pragma once
 #define MATRIX_SIZE 256
-#define N 8
+#define N 7
