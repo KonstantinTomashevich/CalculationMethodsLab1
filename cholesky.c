@@ -20,11 +20,11 @@ bool BuildCholeskyLT (double **A, int matrixSize, int *D)
             D[step] = 1;
         }
 
-        MultiplyRow (A, matrixSize, matrixSize, step, modifier);
+        MultiplyRowPart (A, matrixSize, matrixSize, step, modifier, step);
         for (int row = step + 1; row < matrixSize; ++row)
         {
             modifier = -A[row][step] / A[step][step];
-            AddMultipliedRow (A, matrixSize, matrixSize, row, step, modifier);
+            AddMultipliedRowPart (A, matrixSize, matrixSize, row, step, modifier, step);
         }
     }
 

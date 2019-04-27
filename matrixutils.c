@@ -193,7 +193,12 @@ void PrintMatrix (double **matrix, int rows, int cols)
 
 void MultiplyRow (double **matrix, int rows, int cols, int row, double by)
 {
-    for (int col = 0; col < cols; ++col)
+    MultiplyRowPart (matrix, rows, cols, row, by, 0);
+}
+
+void MultiplyRowPart (double **matrix, int rows, int cols, int row, double by, int start)
+{
+    for (int col = start; col < cols; ++col)
     {
         matrix[row][col] *= by;
     }

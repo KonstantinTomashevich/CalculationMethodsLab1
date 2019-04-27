@@ -18,6 +18,7 @@ void FillDefaultMatrix (double **matrix, int rows, int cols);
 void PrintMatrix (double **matrix, int rows, int cols);
 
 void MultiplyRow (double **matrix, int rows, int cols, int row, double by);
+void MultiplyRowPart (double **matrix, int rows, int cols, int row, double by, int start);
 void MultiplyCol (double **matrix, int rows, int cols, int col, double by);
 void SwapRows (double **matrix, int rows, int cols, int row1, int row2);
 void SwapCols (double **matrix, int rows, int cols, int col1, int col2);
